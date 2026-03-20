@@ -1,0 +1,351 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft JhengHei", "微軟正黑體", Arial, sans-serif;
+    background-color: #d0d0d0;
+    min-height: 100vh;
+    padding: 15px;
+}
+
+.page-wrapper {
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+/* 頁首 */
+.page-header {
+    background-color: #c0c0c0;
+    border: 1px solid #999;
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.page-header .title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #000;
+}
+
+.page-header .subtitle {
+    font-size: 12px;
+    color: #333;
+}
+
+/* 主要表單區域 */
+.form-section {
+    border: 2px solid #888;
+    background-color: #e0e0e0;
+}
+
+.section-title {
+    background-color: #a0a0a0;
+    border-bottom: 1px solid #888;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* 表格樣式 */
+.form-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.form-table tr {
+    border-bottom: 1px solid #b0b0b0;
+}
+
+.form-table tr:last-child {
+    border-bottom: none;
+}
+
+.form-table td {
+    padding: 5px 8px;
+    vertical-align: middle;
+    font-size: 13px;
+}
+
+.form-table td.label-cell {
+    width: 38%;
+    background-color: #c8c8c8;
+    border-right: 1px solid #b0b0b0;
+}
+
+.form-table td.input-cell {
+    background-color: #e8e8e8;
+}
+
+.label-zh {
+    display: block;
+    font-weight: bold;
+    font-size: 13px;
+    color: #000;
+}
+
+.label-en {
+    display: block;
+    font-size: 11px;
+    color: #555;
+}
+
+/* 輸入框 */
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+    border: 1px solid #888;
+    background-color: white;
+    padding: 2px 5px;
+    font-size: 13px;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    outline: none;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+    border-color: #0055bb;
+    background-color: #fffff0;
+}
+
+.input-sm { width: 80px; }
+.input-md { width: 140px; }
+.input-lg { width: 220px; }
+.input-xl { width: 100%; max-width: 300px; }
+
+/* 製令單欄位（多段） */
+.order-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.order-group input {
+    width: 65px;
+}
+
+.order-sep {
+    font-size: 13px;
+    color: #555;
+}
+
+/* 顯示用文字 */
+.display-text {
+    font-size: 13px;
+    color: #000;
+    padding: 2px 4px;
+}
+
+.display-label {
+    font-size: 11px;
+    color: #555;
+    margin-right: 8px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 時間欄位並排 */
+.time-pair {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.time-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+}
+
+/* 備註 */
+textarea.remarks {
+    width: 100%;
+    max-width: 350px;
+    height: 55px;
+    resize: vertical;
+    font-size: 12px;
+}
+
+/* checkbox */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* 按鈕區 */
+.btn-area {
+    padding: 10px;
+    background-color: #d0d0d0;
+    border-top: 1px solid #aaa;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 4px 18px;
+    font-size: 13px;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    border: 1px solid #888;
+    cursor: pointer;
+    background-color: #d4d4d4;
+    color: #000;
+}
+
+.btn:hover {
+    background-color: #b8b8b8;
+}
+
+.btn:active {
+    background-color: #a0a0a0;
+}
+
+.btn-primary {
+    background-color: #c0d0f0;
+    border-color: #6080c0;
+}
+
+.btn-primary:hover {
+    background-color: #a8beee;
+}
+
+/* 分隔線 */
+.divider-row td {
+    background-color: #b8b8b8 !important;
+    padding: 2px 8px !important;
+    font-size: 11px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 數量資訊顯示區 */
+.qty-display {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.qty-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.qty-label {
+    font-size: 11px;
+    color: #444;
+}
+
+.qty-value {
+    font-size: 13px;
+    font-weight: bold;
+    color: #000;
+    min-width: 40px;
+    text-align: right;
+}
+
+
+/* 員工資訊顯示 */
+#employeeInfo {
+    font-size: 12px;
+    color: #555;
+    margin-top: 3px;
+}
+
+/* 品號顯示 */
+#productNo {
+    font-size: 12px;
+    color: #555;
+    margin-top: 3px;
+}
+
+/* 製令單第二段輸入框 */
+#workOrder2 {
+    width: 107px;
+}
+
+/* 製令工序下拉與輸入框 */
+#process {
+    width: 80px;
+}
+
+#processInput {
+    width: 80px;
+}
+
+/* 機台數量下拉 */
+#machineQty {
+    width: 80px;
+}
+
+/* 機台代號動態輸入框 */
+.machine-input {
+    width: 100px;
+    margin-right: 5px;
+    margin-bottom: 6px;
+}
+
+/* 當日報工紀錄區塊 */
+#reportList tr:first-child {
+    background-color: #b8b8b8;
+}
+
+/* 當日報工區塊間距 */
+.report-section {
+    margin-top: 10px;
+}
+
+/* 當日報工紀錄表格 */
+.report-table {
+    font-size: 12px;
+}
+
+.report-header td {
+    background-color: #6b1a1a;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px 6px !important;
+}
+
+#reportList td {
+    white-space: pre-line;
+}
+
+#reportList td:nth-child(7) {
+    min-width: 80px;
+    white-space: pre-line;
+}
