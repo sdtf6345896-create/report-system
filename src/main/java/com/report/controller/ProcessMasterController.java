@@ -23,9 +23,16 @@ public class ProcessMasterController {
     public List<ProcessMaster> getByProcessNo(@PathVariable String processNo) {
         return svc.findByProcessNo(processNo);
     }
-    
+
     @GetMapping("/byOrder/{orderNo}")
     public List<ProcessMaster> getByOrderNo(@PathVariable String orderNo) {
         return svc.findByOrderNo(orderNo);
+    }
+
+    @GetMapping("/byOrder/{orderNo}/{processNo}")
+    public List<ProcessMaster> getByOrderNoAndProcessNo(
+            @PathVariable String orderNo,
+            @PathVariable String processNo) {
+        return svc.findByOrderNoAndProcessNo(orderNo, processNo);
     }
 }

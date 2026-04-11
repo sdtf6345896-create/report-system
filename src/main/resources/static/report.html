@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>報工資料輸入作業</title>
+    <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <span class="title">報工資料輸入作業</span>
+        <span class="subtitle">Work Report Entry</span>
+        <a href="/index.html" class="btn-home">⬅ 回首頁</a>
+    </div>
+
+    <div class="form-section">
+
+        <table class="form-table">
+
+            <!-- 生產日期 -->
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">生產日期</span>
+                    <span class="label-en">Production Date</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="productionDate" class="input-md" placeholder="YYYYMMDD">
+                </td>
+            </tr>
+
+			<!-- 員工編號 -->
+			<tr>
+			    <td class="label-cell">
+			        <span class="label-zh">員工編號</span>
+			        <span class="label-en">Employee No.</span>
+			    </td>
+			    <td class="input-cell">
+			        <input type="text" id="employeeNo" class="input-md">
+			        <div id="employeeInfo"></div>
+			    </td>
+			</tr>
+
+            <!-- 製令單 -->
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">製令單</span>
+                    <span class="label-en">Work Order</span>
+                </td>
+				<td class="input-cell">
+				    <div class="order-group">
+				        <input type="text" id="workOrder1" class="input-sm">
+				        <span class="order-sep">-</span>
+				        <input type="text" id="workOrder2">
+				    </div>
+				    <div id="productNo"></div>
+				</td>
+            </tr>
+			
+
+            <!-- 製令工序 -->
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">製令工序</span>
+                    <span class="label-en">Process</span>
+                </td>
+                <td class="input-cell">
+					<select id="process" style="width:80px;">
+					    <option value="">--</option>
+					</select>
+					<input type="text" id="processInput" style="width:80px;" readonly>
+                </td>
+            </tr>
+			
+			<!-- 製程代號 -->
+			<tr>
+			    <td class="label-cell">
+			        <span class="label-zh">製程代號</span>
+			        <span class="label-en">CODE</span>
+			    </td>
+			    <td class="input-cell">
+			        <input type="text" id="processCode" class="input-sm" readonly>
+			    </td>
+			</tr>
+
+			<!-- 機台數量 -->
+			<tr>
+			    <td class="label-cell">
+			        <span class="label-zh">機台數量</span>
+			        <span class="label-en">Machine Qty</span>
+			    </td>
+			    <td class="input-cell">
+			        <select id="machineQty" style="width:80px;">
+			            <option value="0">無</option>
+			            <option value="1">1</option>
+			            <option value="2">2</option>
+			            <option value="3">3</option>
+			            <option value="4">4</option>
+			            <option value="5">5</option>
+						<option value="6">6</option>
+						<option value="7">7</option>
+						<option value="8">8</option>
+			        </select>
+			    </td>
+			</tr>
+
+			<!-- 機台代號 -->
+			<tr id="machineCodeRow">
+			    <td class="label-cell">
+			        <span class="label-zh">機台代號</span>
+			        <span class="label-en">Machine Code</span>
+			    </td>
+			    <td class="input-cell" id="machineCodeCell">
+			    </td>
+			</tr>
+
+            <!-- 分隔線 -->
+            <tr class="divider-row">
+                <td colspan="2">數量資訊 / Quantity Information</td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">完成數量</span>
+                    <span class="label-en">Completed Qty</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="completedQty" class="input-sm">
+                </td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">報廢數量</span>
+                    <span class="label-en">Scrap Qty</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="scrapQty" class="input-sm">
+                </td>
+            </tr>
+
+            <!-- 分隔線 -->
+            <tr class="divider-row">
+                <td colspan="2">時間資訊 / Time Information</td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">人時（起）</span>
+                    <span class="label-en">oras nag umpisa</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="laborTimeStart" class="input-sm" >
+                </td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">人時（迄）</span>
+                    <span class="label-en">oras na natapos</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="laborTimeEnd" class="input-sm" >
+                </td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">機時（起）</span>
+                    <span class="label-en">oras nag umpisa ang makina</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="machineTimeStart" class="input-sm" >
+                </td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">機時（迄）</span>
+                    <span class="label-en">oras na natapos ang makina</span>
+                </td>
+                <td class="input-cell">
+                    <input type="text" id="machineTimeEnd" class="input-sm" >
+                </td>
+            </tr>
+
+            <!-- 分隔線 -->
+            <tr class="divider-row">
+                <td colspan="2">其他 / Others</td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">備註說明</span>
+                    <span class="label-en">Remarks</span>
+                </td>
+                <td class="input-cell">
+                    <textarea id="remarks" class="remarks"></textarea>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">
+                    <span class="label-zh">是否完批</span>
+                    <span class="label-en">kung natapos ang gawa</span>
+                </td>
+                <td class="input-cell">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="isComplete">
+                        <label for="isComplete">是 (YES)</label>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+        <div class="btn-area">
+            <button class="btn btn-primary" id="btnSave">確認送出</button>
+            <button class="btn" id="btnClear">清除</button>
+            <button class="btn" id="btnPrev">上一筆</button>
+            <button class="btn" id="btnNext">下一筆</button>
+        </div>
+
+    </div>
+	<!-- 當日報工紀錄列表 -->
+	<div class="form-section report-section">
+	    <div class="section-title">當日報工紀錄</div>
+		<table class="form-table report-table" id="reportList">
+		    <tr class="report-header">
+		        <td>人員-生產日期</td>
+		        <td>製令</td>
+				<td>製令工序</td>
+				<td>製程代號</td>
+		        <td>人時(起)</td>
+		        <td>人時(迄)</td>
+		        <td>機台</td>
+		        <td>機時(起)</td>
+		        <td>機時(迄)</td>
+		        <td>數量</td>
+		        <td>報廢數量</td>
+		        <td>備註</td>
+				<td>操作</td>
+		    </tr>
+		</table>
+	   </div>
+
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

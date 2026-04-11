@@ -12,4 +12,6 @@ public interface WorkReportMachineRepository extends JpaRepository<WorkReportMac
 
     @Transactional
     void deleteByReportId(Long reportId);
+
+    List<WorkReportMachine> findByMachineCode(String machineCode);
 }

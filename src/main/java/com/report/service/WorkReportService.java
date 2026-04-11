@@ -52,7 +52,18 @@ public class WorkReportService {
                 int startM = Integer.parseInt(r.getLaborTimeStart().substring(2, 4));
                 int endH = Integer.parseInt(r.getLaborTimeEnd().substring(0, 2));
                 int endM = Integer.parseInt(r.getLaborTimeEnd().substring(2, 4));
-                total += (endH * 60 + endM) - (startH * 60 + startM);
+                int startMinutes = startH * 60 + startM;
+                int endMinutes = endH * 60 + endM;
+                int workMinutes = endMinutes - startMinutes;
+
+                int lunchStart = 12 * 60;
+                int lunchEnd = 13 * 60;
+                if (startMinutes < lunchEnd && endMinutes > lunchStart) {
+                    int overlapStart = Math.max(startMinutes, lunchStart);
+                    int overlapEnd = Math.min(endMinutes, lunchEnd);
+                    workMinutes -= (overlapEnd - overlapStart);
+                }
+                total += workMinutes;
             }
         }
         return Math.round(total / 60.0 * 100.0) / 100.0;
@@ -69,11 +80,16 @@ public class WorkReportService {
         }
         return list;
     }
+
     public java.util.Optional<WorkReport> findById(Long id) {
         return repo.findById(id);
     }
 
     public WorkReport saveReport(WorkReport r) {
         return repo.save(r);
+    }
+
+    public void deleteById(Long id) {
+        repo.deleteById(id);
     }
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>登入</title>
+    <link rel="stylesheet" href="/css/login.css?v=2">
+</head>
+<body>
+<div class="login-container">
+    <h2>工廠管理系統</h2>
+    <div class="login-box">
+        <h3>請先登入</h3>
+        <div class="form-group">
+            <label>帳號</label>
+            <input type="text" id="username" placeholder="請輸入帳號" />
+        </div>
+        <div class="form-group">
+            <label>密碼</label>
+            <input type="password" id="password" placeholder="請輸入密碼" />
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+        <button class="btn-login" onclick="login()">登入</button>
+        <a href="/index.html" class="btn-back">回首頁</a>
+    </div>
+</div>
+<script src="/js/login.js"></script>
+</body>
+</html>

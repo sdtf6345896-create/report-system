@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>現場製令SOP查詢</title>
+    <link rel="stylesheet" href="/css/sop.css?v=2">
+</head>
+<body>
+
+<!-- 導覽列 -->
+<div class="sop-nav">
+    <a href="/index.html">⬅ 回首頁</a>
+</div>
+
+<!-- 備註區 -->
+<div class="notice">
+    <div class="notice-title">備註：</div>
+    <div class="notice-content">
+        1.本程式的查詢以「製令製程」為主要查詢內容<br>
+        2.點擊 <span class="highlight">SOP</span> 或 <span class="highlight">SIP</span> 按鈕可查閱對應文件
+    </div>
+</div>
+
+<!-- 查詢列 -->
+<div class="search-bar">
+    <label>查詢製令：</label>
+    <input type="text" id="orderInput1" maxlength="10" />
+    <span>－</span>
+    <input type="text" id="orderInput2" maxlength="10" />
+    <button onclick="search()">查　詢</button>
+</div>
+
+<!-- 查詢結果 -->
+<div class="result-area" id="resultArea"></div>
+
+<!-- 圖片彈出視窗 -->
+<div class="modal" id="modal">
+    <span class="modal-close" onclick="closeModal()">✕</span>
+    <img id="modalImg" src="" alt="文件圖片" />
+</div>
+
+<script src="/js/sop.js"></script>
+</body>
+</html>

@@ -41,7 +41,6 @@ public class ReportController {
         r.setRemarks((String) body.get("remarks"));
         r.setIsComplete(body.get("isComplete") != null && (Boolean) body.get("isComplete"));
 
-        // 處理多台機台
         List<WorkReportMachine> machines = new java.util.ArrayList<>();
         Object machineRaw = body.get("machines");
         if (machineRaw instanceof List) {
@@ -76,7 +75,6 @@ public class ReportController {
             existing.setRemarks((String) body.get("remarks"));
             existing.setIsComplete(body.get("isComplete") != null && (Boolean) body.get("isComplete"));
 
-            // 更新機台資料
             machineRepo.deleteByReportId(id);
             List<WorkReportMachine> machines = new java.util.ArrayList<>();
             Object machineRaw = body.get("machines");
@@ -98,6 +96,15 @@ public class ReportController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        return svc.findById(id).map(r -> {
+            machineRepo.deleteByReportId(id);
+            svc.deleteById(id);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/totalHours/{employeeNo}/{date}")
     public double getTotalHours(@PathVariable String employeeNo, @PathVariable String date) {
         return svc.calcTotalHours(employeeNo, date);
@@ -105,7 +112,7 @@ public class ReportController {
 
     @GetMapping("/listByDate/{date}")
     public List<WorkReport> listByDate(@PathVariable String date,
-            @RequestParam(required = false) String employeeNo) {
+                                       @RequestParam(required = false) String employeeNo) {
         if (employeeNo != null && !employeeNo.isEmpty()) {
             return svc.findByDateAndEmployee(date, employeeNo);
         }

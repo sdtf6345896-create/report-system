@@ -1,0 +1,177 @@
+body {
+    font-family: Arial, "Microsoft JhengHei", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    font-size: 14px;
+}
+
+.notice {
+    background: #ccff99;
+    border: 1px solid #aaa;
+    padding: 10px 15px;
+    margin: 8px;
+}
+
+.notice-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.notice-content {
+    line-height: 1.8;
+}
+
+.highlight {
+    color: #cc0000;
+    font-weight: bold;
+}
+
+.search-bar {
+    background: #aaddff;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px;
+    border: 1px solid #88aacc;
+}
+
+.search-bar label {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.search-bar input {
+    padding: 4px 6px;
+    border: 1px solid #aaa;
+    font-size: 14px;
+    width: 120px;
+}
+
+.search-bar button {
+    padding: 4px 16px;
+    background: #e0e0e0;
+    border: 1px solid #aaa;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-bar button:hover {
+    background: #cccccc;
+}
+
+.result-area {
+    margin: 10px;
+    color: #333;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.result-table th {
+    background: #336699;
+    color: white;
+    padding: 8px 10px;
+    text-align: center;
+    border: 1px solid #aaa;
+}
+
+.result-table td {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.result-table tr:nth-child(even) {
+    background: #f0f0f0;
+}
+
+.result-table tr:hover {
+    background: #e0f0ff;
+}
+
+.btn-sop-sm {
+    padding: 4px 14px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.btn-sip-sm {
+    padding: 4px 14px;
+    background: #fd7e14;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.btn-sop-sm:disabled,
+.btn-sip-sm:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.no-doc {
+    color: #aaa;
+    font-size: 12px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 4px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.sop-nav {
+    padding: 8px 15px;
+    background: #333;
+}
+
+.sop-nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.sop-nav a:hover {
+    text-decoration: underline;
+}
