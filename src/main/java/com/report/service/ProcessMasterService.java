@@ -20,11 +20,11 @@ public class ProcessMasterService {
         return repo.findAll();
     }
 
-    public List<ProcessMaster> findByOrderNo(String orderNo) {
-        return repo.findByOrderNo(orderNo);
+    public List<ProcessMaster> findByProductNo(String productNo) {
+        return repo.findByProductNo(productNo);
     }
 
-    public List<ProcessMaster> findByOrderNoAndProcessNo(String orderNo, String processNo) {
-        return repo.findByOrderNoAndProcessNo(orderNo, processNo);
+    public List<ProcessMaster> findByProductNoAndProcessNo(String productNo, String processNo) {
+        return repo.findByProductNoAndProcessNo(productNo, processNo);
     }
 }

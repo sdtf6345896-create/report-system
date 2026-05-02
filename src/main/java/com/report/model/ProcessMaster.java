@@ -13,7 +13,7 @@ public class ProcessMaster {
     private Long id;
     private String processNo;
     private String processCode;
-    private String orderNo;
+    private String productNo;
     private String processName;
     private String reviewedBy;
 }

@@ -34,14 +34,16 @@ function loadReportList(date, empNo) {
             if (data.length === 0) {
                 const row = table.insertRow();
                 const cell = row.insertCell();
-                cell.colSpan = 12;
+                cell.colSpan = 15;
                 cell.style.textAlign = 'center';
                 cell.innerText = '尚無報工紀錄';
                 return;
             }
             data.forEach(function (r) {
                 const row = table.insertRow();
-                row.insertCell().innerText = (r.employeeNo || '') + '-' + (r.productionDate || '');
+                row.insertCell().innerText = r.productionDate || '';
+                row.insertCell().innerText = r.employeeNo || '';
+                row.insertCell().innerText = r.employeeName || '';
                 row.insertCell().innerText = r.workOrder || '';
                 row.insertCell().innerText = r.process || '';
                 row.insertCell().innerText = r.processCode || '';
@@ -102,7 +104,8 @@ workOrder2.addEventListener('blur', function () {
         .then(function (data) {
             if (data) {
                 document.getElementById('productNo').innerText = data.productNo;
-                fetch('/api/process/byOrder/' + order)
+                window._productNo = data.productNo;
+                fetch('/api/process/byProduct/' + data.productNo)
                     .then(function (res) { return res.json(); })
                     .then(function (list) {
                         const select = document.getElementById('process');
@@ -119,6 +122,19 @@ workOrder2.addEventListener('blur', function () {
                 alert('無此製令號！');
             }
         });
+});
+
+laborTimeStart.addEventListener('input', function () {
+    if (parseInt(document.getElementById('machineQty').value) > 0) {
+        machineTimeStart.value = laborTimeStart.value;
+    }
+});
+
+laborTimeEnd.addEventListener('input', function () {
+    if (parseInt(document.getElementById('machineQty').value) > 0) {
+        machineTimeStart.value = laborTimeStart.value;
+        machineTimeEnd.value = laborTimeEnd.value;
+    }
 });
 
 productionDate.addEventListener('change', function () {
@@ -147,11 +163,41 @@ document.getElementById('btnSave').addEventListener('click', function () {
     if (!productionDate.value) { alert('請填寫生產日期！'); productionDate.focus(); return; }
     if (!employeeNo.value) { alert('請填寫員工編號！'); employeeNo.focus(); return; }
     if (!workOrder1.value || !workOrder2.value) { alert('請填寫製令單！'); workOrder1.focus(); return; }
+    if (!laborTimeStart.value || !laborTimeEnd.value || laborTimeStart.value === '0' || laborTimeEnd.value === '0') {
+        alert('請填寫人時！');
+        laborTimeStart.focus();
+        return;
+    }
+    if (laborTimeStart.value.length !== 4 || laborTimeEnd.value.length !== 4) {
+        alert('人時格式錯誤，請填寫4位數（例如：0800）！');
+        laborTimeStart.focus();
+        return;
+    }
 
     const workOrder = workOrder1.value + '-' + workOrder2.value;
     const machines = [];
-    const machineSet = new Set();
     const qty = parseInt(document.getElementById('machineQty').value);
+    if (qty > 0) {
+        if (!machineTimeStart.value || !machineTimeEnd.value || machineTimeStart.value === '0' || machineTimeEnd.value === '0') {
+            alert('請填寫機時！');
+            machineTimeStart.focus();
+            return;
+        }
+        if (machineTimeStart.value.length !== 4 || machineTimeEnd.value.length !== 4) {
+            alert('機時格式錯誤，請填寫4位數（例如：0800）！');
+            machineTimeStart.focus();
+            return;
+        }
+        for (let i = 1; i <= qty; i++) {
+            const mc = document.getElementById('machineCode' + i);
+            if (mc && !mc.value) {
+                alert('請選擇機台！');
+                mc.focus();
+                return;
+            }
+        }
+    }
+    const machineSet = new Set();
     for (let i = 1; i <= qty; i++) {
         const mc = document.getElementById('machineCode' + i);
         if (mc) {
@@ -173,6 +219,7 @@ document.getElementById('btnSave').addEventListener('click', function () {
         productionDate:   productionDate.value,
         employeeNo:       employeeNo.value,
         workOrder:        workOrder,
+        productNo:        window._productNo || '',
         process:          process.value,
         machineCode:      machines.length > 0 ? machines[0].machineCode : '',
         completedQty:     completedQty.value !== '' ? parseInt(completedQty.value) : null,
@@ -219,7 +266,6 @@ document.getElementById('btnSave').addEventListener('click', function () {
 document.getElementById('btnClear').addEventListener('click', function () { clearForm(); });
 
 function clearForm() {
-    productionDate.value = '';
     employeeNo.value = '';
     workOrder1.value = '';
     workOrder2.value = '';
@@ -242,7 +288,30 @@ function clearForm() {
     window._availableMachines = [];
     const select = document.getElementById('process');
     select.innerHTML = '<option value="">--</option>';
+    document.getElementById('btnDelete').style.display = 'none';
+    window._editId = null;
 }
+
+document.getElementById('btnDelete').addEventListener('click', function () {
+    if (!window._editId) return;
+    if (!confirm('確定要刪除此報工紀錄嗎？')) return;
+    fetch('/api/report/delete/' + window._editId, { method: 'DELETE' })
+        .then(function (res) {
+            if (res.ok) {
+                alert('刪除成功！');
+                const date = productionDate.value;
+                const no = employeeNo.value;
+                clearForm();
+                productionDate.value = date;
+                employeeNo.value = no;
+                window._employeeName = window._employeeName || '';
+                updateEmployeeInfo();
+                loadReportList(date, no);
+            } else {
+                alert('刪除失敗！');
+            }
+        });
+});
 
 // 製令工序選擇後自動帶出製程代碼和對應機台
 document.getElementById('process').addEventListener('change', function () {
@@ -253,13 +322,11 @@ document.getElementById('process').addEventListener('change', function () {
         window._availableMachines = [];
         return;
     }
-    const order = workOrder1.value.trim() + '-' + workOrder2.value.trim();
-    fetch('/api/process/byOrder/' + order + '/' + processNo)
+    fetch('/api/process/byProduct/' + (window._productNo || '') + '/' + processNo)
         .then(function (res) { return res.json(); })
         .then(function (data) {
             if (data.length > 0) {
                 document.getElementById('processCode').value = data[0].processCode;
-                // 根據製程代號載入對應機台
                 const processCode = data[0].processCode;
                 fetch('/api/machine/byProcess/' + processCode)
                     .then(function (res) { return res.json(); })
@@ -303,8 +370,12 @@ document.getElementById('machineQty').addEventListener('change', function () {
     cell.innerHTML = '';
     if (qty === 0) {
         row.style.display = 'none';
+        machineTimeStart.value = '';
+        machineTimeEnd.value = '';
     } else {
         row.style.display = '';
+        machineTimeStart.value = laborTimeStart.value;
+        machineTimeEnd.value = laborTimeEnd.value;
         for (let i = 1; i <= qty; i++) {
             const input = document.createElement('input');
             input.type = 'text';
@@ -326,8 +397,9 @@ function loadToForm(r) {
     updateEmployeeInfo();
     workOrder1.value = (r.workOrder || '').split('-')[0] || '';
     workOrder2.value = (r.workOrder || '').split('-')[1] || '';
-    document.getElementById('productNo').innerText = '';
-    fetch('/api/process/byOrder/' + (r.workOrder || ''))
+    document.getElementById('productNo').innerText = r.productNo || '';
+    window._productNo = r.productNo || '';
+    fetch('/api/process/byProduct/' + (r.productNo || ''))
         .then(function (res) { return res.json(); })
         .then(function (list) {
             const select = document.getElementById('process');
@@ -342,7 +414,6 @@ function loadToForm(r) {
             document.getElementById('processInput').value = r.process || '';
             document.getElementById('processCode').value = r.processCode || '';
 
-            // 載入對應機台
             if (r.processCode) {
                 fetch('/api/machine/byProcess/' + r.processCode)
                     .then(function (res) { return res.json(); })
@@ -370,4 +441,5 @@ function loadToForm(r) {
     isComplete.checked = r.isComplete || false;
     window.scrollTo(0, 0);
     document.getElementById('btnSave').innerText = '確認更新';
+    document.getElementById('btnDelete').style.display = '';
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>報工資料輸入作業</title>
-    <link rel="stylesheet" href="/css/style.css?v=2">
+    <link rel="stylesheet" href="/css/report.css?v=2">
 </head>
 <body>
 <div class="page-wrapper">
@@ -171,7 +171,7 @@
                     <span class="label-en">oras nag umpisa ang makina</span>
                 </td>
                 <td class="input-cell">
-                    <input type="text" id="machineTimeStart" class="input-sm" >
+                    <input type="text" id="machineTimeStart" class="input-sm" readonly style="background:#e0e0e0;">
                 </td>
             </tr>
 
@@ -181,7 +181,7 @@
                     <span class="label-en">oras na natapos ang makina</span>
                 </td>
                 <td class="input-cell">
-                    <input type="text" id="machineTimeEnd" class="input-sm" >
+                    <input type="text" id="machineTimeEnd" class="input-sm" readonly style="background:#e0e0e0;">
                 </td>
             </tr>
 
@@ -218,34 +218,34 @@
         <div class="btn-area">
             <button class="btn btn-primary" id="btnSave">確認送出</button>
             <button class="btn" id="btnClear">清除</button>
-            <button class="btn" id="btnPrev">上一筆</button>
-            <button class="btn" id="btnNext">下一筆</button>
+            <button class="btn" id="btnDelete" style="display:none;background:#cc0000;color:white;">刪除此報工</button>
         </div>
+
 
     </div>
 	<!-- 當日報工紀錄列表 -->
 	<div class="form-section report-section">
 	    <div class="section-title">當日報工紀錄</div>
 		<table class="form-table report-table" id="reportList">
-		    <tr class="report-header">
-		        <td>人員-生產日期</td>
-		        <td>製令</td>
-				<td>製令工序</td>
-				<td>製程代號</td>
-		        <td>人時(起)</td>
-		        <td>人時(迄)</td>
-		        <td>機台</td>
-		        <td>機時(起)</td>
-		        <td>機時(迄)</td>
-		        <td>數量</td>
-		        <td>報廢數量</td>
-		        <td>備註</td>
-				<td>操作</td>
-		    </tr>
-		</table>
-	   </div>
+            <tr class="report-header">
+                <td>生產日期</td>
+                <td>工號</td>
+                <td>姓名</td>
+                <td>製令</td>
+                <td>製令工序</td>
+                <td>製程代號</td>
+                <td>人時(起)</td>
+                <td>人時(迄)</td>
+                <td>機台</td>
+                <td>機時(起)</td>
+                <td>機時(迄)</td>
+                <td>數量</td>
+                <td>報廢數量</td>
+                <td>備註</td>
+                <td>操作</td>
+            </tr>
 
 </div>
-<script src="/js/main.js"></script>
+<script src="/js/report.js"></script>
 </body>
 </html>

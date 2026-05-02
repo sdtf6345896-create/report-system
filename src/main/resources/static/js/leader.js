@@ -171,7 +171,8 @@ function openEdit(r) {
     document.getElementById('editRemarks').value = r.remarks || '';
     document.getElementById('editIsComplete').checked = r.isComplete || false;
 
-    fetch('/api/process/byOrder/' + (r.workOrder || ''))
+    window._editProductNo = r.productNo || '';
+    fetch('/api/process/byProduct/' + (r.productNo || ''))
         .then(res => res.json())
         .then(list => {
             const select = document.getElementById('editProcess');
@@ -207,6 +208,17 @@ function openEdit(r) {
         });
 
     document.getElementById('editModal').classList.add('show');
+    document.getElementById('editLaborStart').oninput = function() {
+        if (document.getElementById('editMachineQty').value > 0) {
+            document.getElementById('editMachineTimeStart').value = this.value;
+        }
+    };
+    document.getElementById('editLaborEnd').oninput = function() {
+        if (document.getElementById('editMachineQty').value > 0) {
+            document.getElementById('editMachineTimeStart').value = document.getElementById('editLaborStart').value;
+            document.getElementById('editMachineTimeEnd').value = this.value;
+        }
+    };
 }
 
 function loadEditProcessList() {
@@ -215,7 +227,13 @@ function loadEditProcessList() {
     if (!order1 || !order2) { alert('請輸入完整製令號！'); return; }
     const order = order1 + '-' + order2;
 
-    fetch('/api/process/byOrder/' + order)
+    fetch('/api/workorder/' + order)
+        .then(res => res.json())
+        .then(data => {
+            if (!data) { alert('無此製令號！'); return Promise.reject(); }
+            window._editProductNo = data.productNo;
+            return fetch('/api/process/byProduct/' + data.productNo);
+        })
         .then(res => res.json())
         .then(list => {
             const select = document.getElementById('editProcess');
@@ -239,11 +257,8 @@ function onEditProcessChange() {
         window._editAvailableMachines = [];
         return;
     }
-    const order1 = document.getElementById('editWorkOrder1').value.trim();
-    const order2 = document.getElementById('editWorkOrder2').value.trim();
-    const order = order1 + '-' + order2;
 
-    fetch('/api/process/byOrder/' + order + '/' + processNo)
+    fetch('/api/process/byProduct/' + (window._editProductNo || '') + '/' + processNo)
         .then(res => res.json())
         .then(data => {
             if (data.length > 0) {
@@ -266,6 +281,16 @@ function onEditMachineQtyChange() {
     const area = document.getElementById('editMachineArea');
     area.innerHTML = '';
     const machines = window._editAvailableMachines || [];
+    const laborStart = document.getElementById('editLaborStart').value;
+    const laborEnd = document.getElementById('editLaborEnd').value;
+
+    if (qty === 0) {
+        document.getElementById('editMachineTimeStart').value = '';
+        document.getElementById('editMachineTimeEnd').value = '';
+    } else {
+        document.getElementById('editMachineTimeStart').value = laborStart;
+        document.getElementById('editMachineTimeEnd').value = laborEnd;
+    }
 
     for (let i = 1; i <= qty; i++) {
         const div = document.createElement('div');
@@ -296,6 +321,31 @@ function saveEdit() {
     const order2 = document.getElementById('editWorkOrder2').value.trim();
     const workOrder = order1 + '-' + order2;
     const qty = parseInt(document.getElementById('editMachineQty').value);
+    const laborStart = document.getElementById('editLaborStart').value;
+    const laborEnd = document.getElementById('editLaborEnd').value;
+    const machineTimeStart = document.getElementById('editMachineTimeStart').value;
+    const machineTimeEnd = document.getElementById('editMachineTimeEnd').value;
+
+    if (!laborStart || !laborEnd || laborStart === '0' || laborEnd === '0') {
+        alert('請填寫人時！'); return;
+    }
+    if (laborStart.length !== 4 || laborEnd.length !== 4) {
+        alert('人時格式錯誤，請填寫4位數（例如：0800）！'); return;
+    }
+    if (qty > 0) {
+        if (!machineTimeStart || !machineTimeEnd || machineTimeStart === '0' || machineTimeEnd === '0') {
+            alert('請填寫機時！'); return;
+        }
+        if (machineTimeStart.length !== 4 || machineTimeEnd.length !== 4) {
+            alert('機時格式錯誤，請填寫4位數（例如：0800）！'); return;
+        }
+        for (let i = 1; i <= qty; i++) {
+            const mc = document.getElementById('editMachineCode' + i);
+            if (mc && !mc.value) {
+                alert('請選擇機台！'); return;
+            }
+        }
+    }
     const machines = [];
     for (let i = 1; i <= qty; i++) {
         const mc = document.getElementById('editMachineCode' + i);
@@ -311,6 +361,7 @@ function saveEdit() {
     const data = {
         productionDate: document.getElementById('editProductionDate').value,
         workOrder: workOrder,
+        productNo: window._editProductNo || '',
         process: document.getElementById('editProcess').value,
         machineCode: machines.length > 0 ? machines[0].machineCode : '',
         laborTimeStart: document.getElementById('editLaborStart').value,
@@ -362,3 +413,4 @@ function logout() {
     fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
         .then(() => { window.location.href = '/login.html'; });
 }
+

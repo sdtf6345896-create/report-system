@@ -23,11 +23,24 @@
 
 <!-- 查詢列 -->
 <div class="search-bar">
-    <label>查詢製令：</label>
-    <input type="text" id="orderInput1" maxlength="10" />
-    <span>－</span>
-    <input type="text" id="orderInput2" maxlength="10" />
-    <button onclick="search()">查　詢</button>
+    <button id="btnModeOrder" onclick="switchMode('order')" style="background:#336699;color:white;border:1px solid #aaa;">製令查詢</button>
+    <button id="btnModeProduct" onclick="switchMode('product')" style="background:#e0e0e0;color:#333;border:1px solid #aaa;">品號查詢</button>
+    <span style="margin:0 8px;">|</span>
+
+    <div id="modeOrder" style="display:flex;align-items:center;gap:6px;">
+        <label>查詢製令：</label>
+        <input type="text" id="orderInput1" maxlength="10" />
+        <span>－</span>
+        <input type="text" id="orderInput2" maxlength="10" />
+        <span id="orderProductNo" style="color:#336699;font-weight:bold;margin-left:8px;"></span>
+        <button onclick="search()">查　詢</button>
+    </div>
+
+    <div id="modeProduct" style="display:none;align-items:center;gap:6px;">
+        <label>查詢品號：</label>
+        <input type="text" id="productInput" maxlength="20" />
+        <button onclick="searchByProduct()">查　詢</button>
+    </div>
 </div>
 
 <!-- 查詢結果 -->

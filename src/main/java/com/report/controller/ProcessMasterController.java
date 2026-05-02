@@ -24,15 +24,15 @@ public class ProcessMasterController {
         return svc.findByProcessNo(processNo);
     }
 
-    @GetMapping("/byOrder/{orderNo}")
-    public List<ProcessMaster> getByOrderNo(@PathVariable String orderNo) {
-        return svc.findByOrderNo(orderNo);
+    @GetMapping("/byProduct/{productNo}")
+    public List<ProcessMaster> getByProductNo(@PathVariable String productNo) {
+        return svc.findByProductNo(productNo);
     }
 
-    @GetMapping("/byOrder/{orderNo}/{processNo}")
-    public List<ProcessMaster> getByOrderNoAndProcessNo(
-            @PathVariable String orderNo,
+    @GetMapping("/byProduct/{productNo}/{processNo}")
+    public List<ProcessMaster> getByProductNoAndProcessNo(
+            @PathVariable String productNo,
             @PathVariable String processNo) {
-        return svc.findByOrderNoAndProcessNo(orderNo, processNo);
+        return svc.findByProductNoAndProcessNo(productNo, processNo);
     }
 }

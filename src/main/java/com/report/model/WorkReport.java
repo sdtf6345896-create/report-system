@@ -13,7 +13,7 @@ public class WorkReport {
  @GeneratedValue(strategy = GenerationType.IDENTITY)
  private Long id;
 
- private String productionDate, employeeNo, workOrder, process, machineCode;
+ private String productionDate, employeeNo, workOrder, productNo, process, machineCode;
  private String laborTimeStart, laborTimeEnd, machineTimeStart, machineTimeEnd, remarks;
  private Integer plannedQty, completedQty, scrapQty;
  private Boolean isComplete;

@@ -12,12 +12,12 @@ public class WorkOrderDocumentService {
     @Autowired
     private WorkOrderDocumentRepository repo;
 
-    public List<WorkOrderDocument> findByOrderNo(String orderNo) {
-        return repo.findByOrderNo(orderNo);
+    public List<WorkOrderDocument> findByProductNo(String productNo) {
+        return repo.findByProductNo(productNo);
     }
 
-    public List<WorkOrderDocument> findByOrderNoAndProcessNo(String orderNo, String processNo) {
-        return repo.findByOrderNoAndProcessNo(orderNo, processNo);
+    public List<WorkOrderDocument> findByProductNoAndProcessNo(String productNo, String processNo) {
+        return repo.findByProductNoAndProcessNo(productNo, processNo);
     }
 
     public WorkOrderDocument save(WorkOrderDocument doc) {

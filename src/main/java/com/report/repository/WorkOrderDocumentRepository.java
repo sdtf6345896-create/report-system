@@ -7,7 +7,7 @@ import java.util.List;
 
 @Repository
 public interface WorkOrderDocumentRepository extends JpaRepository<WorkOrderDocument, Long> {
-    List<WorkOrderDocument> findByOrderNo(String orderNo);
-    List<WorkOrderDocument> findByOrderNoAndProcessNo(String orderNo, String processNo);
-    List<WorkOrderDocument> findByOrderNoAndProcessNoAndDocType(String orderNo, String processNo, String docType);
+    List<WorkOrderDocument> findByProductNo(String productNo);
+    List<WorkOrderDocument> findByProductNoAndProcessNo(String productNo, String processNo);
+    List<WorkOrderDocument> findByProductNoAndProcessNoAndDocType(String productNo, String processNo, String docType);
 }

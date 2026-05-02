@@ -23,18 +23,18 @@ public class WorkOrderDocumentController {
 
     private final String UPLOAD_DIR = "uploads/";
 
-    // 查詢製令+工序的所有文件
-    @GetMapping("/{orderNo}/{processNo}")
-    public List<WorkOrderDocument> getByOrderAndProcess(
-            @PathVariable String orderNo,
+    // 查詢品號+工序的所有文件
+    @GetMapping("/{productNo}/{processNo}")
+    public List<WorkOrderDocument> getByProductAndProcess(
+            @PathVariable String productNo,
             @PathVariable String processNo) {
-        return svc.findByOrderNoAndProcessNo(orderNo, processNo);
+        return svc.findByProductNoAndProcessNo(productNo, processNo);
     }
 
-    // 查詢製令的所有文件
-    @GetMapping("/{orderNo}")
-    public List<WorkOrderDocument> getByOrderNo(@PathVariable String orderNo) {
-        return svc.findByOrderNo(orderNo);
+    // 查詢品號的所有文件
+    @GetMapping("/{productNo}")
+    public List<WorkOrderDocument> getByProductNo(@PathVariable String productNo) {
+        return svc.findByProductNo(productNo);
     }
 
     // 取得圖片

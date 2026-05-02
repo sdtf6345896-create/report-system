@@ -1,10 +1,13 @@
 package com.report.controller;
 
 import com.report.model.Employee;
+import com.report.model.User;
 import com.report.model.WorkReport;
 import com.report.repository.EmployeeRepository;
+import com.report.repository.UserRepository;
 import com.report.repository.WorkReportRepository;
 import com.report.repository.WorkReportMachineRepository;
+import com.report.repository.DepartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
@@ -23,20 +26,40 @@ public class LeaderController {
     @Autowired
     private WorkReportMachineRepository machineRepo;
 
+    @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
+    private DepartmentRepository deptRepo;
+
     @GetMapping("/info/{employeeId}")
     public Map<String, Object> getLeaderInfo(@PathVariable Long employeeId) {
         Map<String, Object> result = new HashMap<>();
-        Employee leader = employeeRepo.findById(employeeId).orElse(null);
-        if (leader == null) return result;
-        result.put("leaderName", leader.getEmployeeName());
-        String deptName = employeeRepo.findDeptNameByEmployeeId(employeeId);
-        result.put("deptName", deptName != null ? deptName : "");
+        User user = userRepo.findById(employeeId).orElse(null);
+        if (user == null) return result;
+
+        Long deptId = user.getDeptId();
+        String deptName = deptId != null ?
+                deptRepo.findById(deptId).map(d -> d.getDeptName()).orElse("") : "";
+        result.put("deptName", deptName);
+
+        // 找組長姓名（該部門中職位是組長的員工）
+        List<Employee> deptEmps = employeeRepo.findByDeptId(deptId);
+        String leaderName = deptEmps.stream()
+                .filter(e -> "組長".equals(e.getPosition()))
+                .map(Employee::getEmployeeName)
+                .findFirst()
+                .orElse(user.getUsername());
+        result.put("leaderName", leaderName);
+
         return result;
     }
 
     @GetMapping("/employees/{employeeId}")
     public List<Employee> getEmployees(@PathVariable Long employeeId) {
-        Long deptId = employeeRepo.findDeptIdByEmployeeId(employeeId);
+        User user = userRepo.findById(employeeId).orElse(null);
+        if (user == null) return new ArrayList<>();
+        Long deptId = user.getDeptId();
         return employeeRepo.findByDeptId(deptId);
     }
 
@@ -46,15 +69,13 @@ public class LeaderController {
             @RequestParam(required = false) String date,
             @RequestParam(required = false) String employeeNo) {
 
-        Long deptId = employeeRepo.findDeptIdByEmployeeId(employeeId);
+        User user = userRepo.findById(employeeId).orElse(null);
+        if (user == null) return new ArrayList<>();
+        Long deptId = user.getDeptId();
+
         List<Employee> employees = employeeRepo.findByDeptId(deptId);
         List<String> empNos = new ArrayList<>();
         employees.forEach(e -> empNos.add(e.getEmployeeNo()));
-
-        Employee leader = employeeRepo.findById(employeeId).orElse(null);
-        if (leader != null && !empNos.contains(leader.getEmployeeNo())) {
-            empNos.add(leader.getEmployeeNo());
-        }
 
         if (employeeNo != null && !employeeNo.isEmpty()) {
             empNos.clear();

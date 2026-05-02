@@ -13,14 +13,14 @@ public interface WorkReportRepository extends JpaRepository<WorkReport, Long> {
     List<WorkReport> findByProductionDateAndEmployeeNo(String productionDate, String employeeNo);
     @org.springframework.data.jpa.repository.Query(
     	    "SELECT wr, pm.processCode FROM WorkReport wr " +
-    	    "LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.orderNo = wr.workOrder " +
+    	    "LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.productNo = wr.productNo " +
     	    "WHERE wr.productionDate = :date"
     	)
     	List<Object[]> findByDateWithProcessCode(@org.springframework.data.repository.query.Param("date") String date);
 
     	@org.springframework.data.jpa.repository.Query(
     	    "SELECT wr, pm.processCode FROM WorkReport wr " +
-    	    "LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.orderNo = wr.workOrder " +
+    	    "LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.productNo = wr.productNo " +
     	    "WHERE wr.productionDate = :date AND wr.employeeNo = :empNo"
     	)
     	List<Object[]> findByDateAndEmployeeWithProcessCode(
@@ -32,12 +32,12 @@ public interface WorkReportRepository extends JpaRepository<WorkReport, Long> {
 		List<WorkReport> findByEmployeeNoInAndProductionDate(List<String> employeeNos, String date);
 
 		@Query("SELECT wr, pm.processCode FROM WorkReport wr " +
-				"LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.orderNo = wr.workOrder " +
+				"LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.productNo = wr.productNo " +
 				"WHERE wr.employeeNo IN :empNos")
 		List<Object[]> findByEmployeeNoInWithProcessCode(@Param("empNos") List<String> empNos);
 
 		@Query("SELECT wr, pm.processCode FROM WorkReport wr " +
-				"LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.orderNo = wr.workOrder " +
+				"LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.productNo = wr.productNo " +
 				"WHERE wr.employeeNo IN :empNos AND wr.productionDate = :date")
 		List<Object[]> findByEmployeeNoInAndDateWithProcessCode(@Param("empNos") List<String> empNos, @Param("date") String date);
 	}

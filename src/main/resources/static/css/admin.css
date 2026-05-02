@@ -113,6 +113,10 @@ table {
     min-width: 1000px;
 }
 
+.modal-box table {
+    min-width: unset;
+}
+
 td {
     padding: 8px;
     text-align: center;
@@ -124,6 +128,21 @@ tr:hover td {
     background: #f0f4f8;
 }
 
+.date-header:hover td {
+    background: #1a5276 !important;
+}
+
+.sub-header:hover td {
+    background: #1a3a5c !important;
+}
+
+tr:hover .dept-cell {
+    background: #d6eaf8 !important;
+}
+
+tr:hover .emp-cell {
+    background: #eaf4fb !important;
+}
 .btn-edit {
     padding: 3px 10px;
     background: #007bff;
@@ -273,4 +292,21 @@ tr:hover td {
 
 .btn-delete:hover {
     background: #b02a37;
+}
+
+#addProcessTable tr:first-child:hover td {
+    background: #1a3a5c !important;
+    color: white !important;
+}
+
+#addProcessTable tr:first-child td,
+#detailProcessTable tr:first-child td {
+    background: #1a3a5c !important;
+    color: white !important;
+}
+
+#addProcessTable tr:first-child:hover td,
+#detailProcessTable tr:first-child:hover td {
+    background: #1a3a5c !important;
+    color: white !important;
 }

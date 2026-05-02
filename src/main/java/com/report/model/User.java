@@ -16,4 +16,5 @@ public class User {
     private String password;
     private String role;
     private Long employeeId;
+    private Long deptId;
 }

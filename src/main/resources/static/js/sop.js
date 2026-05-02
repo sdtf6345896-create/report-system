@@ -1,24 +1,44 @@
-let allDocsByProcess = {};
+allDocsByProcess = {};
 
-function search() {
-    const order1 = document.getElementById('orderInput1').value.trim();
-    const order2 = document.getElementById('orderInput2').value.trim();
+function switchMode(mode) {
+    if (mode === 'order') {
+        document.getElementById('modeOrder').style.display = 'flex';
+        document.getElementById('modeProduct').style.display = 'none';
+        document.getElementById('btnModeOrder').style.background = '#336699';
+        document.getElementById('btnModeOrder').style.color = 'white';
+        document.getElementById('btnModeProduct').style.background = '#e0e0e0';
+        document.getElementById('btnModeProduct').style.color = '#333';
+    } else {
+        document.getElementById('modeOrder').style.display = 'none';
+        document.getElementById('modeProduct').style.display = 'flex';
+        document.getElementById('btnModeProduct').style.background = '#336699';
+        document.getElementById('btnModeProduct').style.color = 'white';
+        document.getElementById('btnModeOrder').style.background = '#e0e0e0';
+        document.getElementById('btnModeOrder').style.color = '#333';
+    }
+    document.getElementById('orderInput1').value = '';
+    document.getElementById('orderInput2').value = '';
+    document.getElementById('orderProductNo').innerText = '';
+    document.getElementById('productInput').value = '';
+    document.getElementById('resultArea').innerHTML = '';
+}
 
-    if (!order1 || !order2) {
-        alert('請輸入完整製令號碼！');
+function searchByProduct() {
+    const productNo = document.getElementById('productInput').value.trim();
+    if (!productNo) {
+        alert('請輸入品號！');
         return;
     }
-
-    const order = order1 + '-' + order2;
     const area = document.getElementById('resultArea');
     area.innerHTML = '查詢中...';
+    renderResults(productNo, area);
+}
 
+function renderResults(productNo, area) {
     Promise.all([
-        fetch('/api/process/byOrder/' + order).then(r => r.json()),
-        fetch('/api/document/' + order).then(r => r.json())
+        fetch('/api/process/byProduct/' + productNo).then(r => r.json()),
+        fetch('/api/document/' + productNo).then(r => r.json())
     ]).then(([processes, docs]) => {
-
-        // 依工序分組文件
         allDocsByProcess = {};
         docs.forEach(d => {
             if (!allDocsByProcess[d.processNo]) allDocsByProcess[d.processNo] = [];
@@ -26,7 +46,7 @@ function search() {
         });
 
         if (processes.length === 0) {
-            area.innerHTML = '<p style="color:red;">找不到此製令的工序資料！</p>';
+            area.innerHTML = '<p style="color:red;">找不到此品號的工序資料！</p>';
             return;
         }
 
@@ -73,6 +93,28 @@ function search() {
     });
 }
 
+function search() {
+    const order1 = document.getElementById('orderInput1').value.trim();
+    const order2 = document.getElementById('orderInput2').value.trim();
+
+    if (!order1 || !order2) {
+        alert('請輸入完整製令號碼！');
+        return;
+    }
+
+    const order = order1 + '-' + order2;
+    const area = document.getElementById('resultArea');
+    area.innerHTML = '查詢中...';
+
+    fetch('/api/workorder/' + order)
+        .then(r => r.json())
+        .then(wo => {
+            if (!wo) { area.innerHTML = '<p style="color:red;">找不到此製令！</p>'; return; }
+            document.getElementById('orderProductNo').innerText = '品號：' + wo.productNo;
+            renderResults(wo.productNo, area);
+        });
+}
+
 function showDocs(processNo, type) {
     const processDocs = allDocsByProcess[processNo] || [];
     const docs = processDocs.filter(d => d.docType === type);
@@ -83,11 +125,9 @@ function showDocs(processNo, type) {
     }
 
     if (docs.length === 1) {
-        // 只有一張圖片直接顯示
         document.getElementById('modalImg').src = '/api/document/image/' + docs[0].filePath;
         document.getElementById('modal').classList.add('show');
     } else {
-        // 多張圖片顯示第一張，加上左右切換
         showMultiDoc(docs, 0);
     }
 }
@@ -100,11 +140,9 @@ function showMultiDoc(docs, index) {
     currentDocIndex = index;
     document.getElementById('modalImg').src = '/api/document/image/' + docs[index].filePath;
 
-    // 加上頁碼和切換按鈕
     const modal = document.getElementById('modal');
     modal.classList.add('show');
 
-    // 更新頁碼
     let pageInfo = document.getElementById('modalPageInfo');
     if (!pageInfo) {
         pageInfo = document.createElement('div');

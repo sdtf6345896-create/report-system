@@ -30,6 +30,7 @@ public class ReportController {
         r.setProductionDate((String) body.get("productionDate"));
         r.setEmployeeNo((String) body.get("employeeNo"));
         r.setWorkOrder((String) body.get("workOrder"));
+        r.setProductNo((String) body.get("productNo"));
         r.setProcess((String) body.get("process"));
         r.setMachineCode((String) body.get("machineCode"));
         r.setCompletedQty(body.get("completedQty") != null ? ((Number) body.get("completedQty")).intValue() : null);
@@ -64,6 +65,7 @@ public class ReportController {
             existing.setProductionDate((String) body.get("productionDate"));
             existing.setEmployeeNo((String) body.get("employeeNo"));
             existing.setWorkOrder((String) body.get("workOrder"));
+            existing.setProductNo((String) body.get("productNo"));
             existing.setProcess((String) body.get("process"));
             existing.setMachineCode((String) body.get("machineCode"));
             existing.setCompletedQty(body.get("completedQty") != null ? ((Number) body.get("completedQty")).intValue() : null);

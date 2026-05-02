@@ -1,7 +1,9 @@
 package com.report.service;
 
+import com.report.model.Employee;
 import com.report.model.WorkReport;
 import com.report.model.WorkReportMachine;
+import com.report.repository.EmployeeRepository;
 import com.report.repository.WorkReportRepository;
 import com.report.repository.WorkReportMachineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,9 @@ public class WorkReportService {
 
     @Autowired
     private WorkReportMachineRepository machineRepo;
+
+    @Autowired
+    private EmployeeRepository employeeRepo;
 
     public List<WorkReport> findAll() { return repo.findAll(); }
 
@@ -36,6 +41,8 @@ public class WorkReportService {
         for (Object[] row : rows) {
             WorkReport r = (WorkReport) row[0];
             r.setProcessCode((String) row[1]);
+            Employee emp = employeeRepo.findByEmployeeNo(r.getEmployeeNo());
+            if (emp != null) r.setEmployeeName(emp.getEmployeeName());
             r.setMachineList(machineRepo.findByReportId(r.getId()));
             list.add(r);
         }
@@ -75,6 +82,8 @@ public class WorkReportService {
         for (Object[] row : rows) {
             WorkReport r = (WorkReport) row[0];
             r.setProcessCode((String) row[1]);
+            Employee emp = employeeRepo.findByEmployeeNo(r.getEmployeeNo());
+            if (emp != null) r.setEmployeeName(emp.getEmployeeName());
             r.setMachineList(machineRepo.findByReportId(r.getId()));
             list.add(r);
         }

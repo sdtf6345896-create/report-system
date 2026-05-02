@@ -24,9 +24,27 @@ function checkLogin() {
 function switchTab(tab, btn) {
     document.getElementById('tab-report').style.display = 'none';
     document.getElementById('tab-hours').style.display = 'none';
+    document.getElementById('tab-master').style.display = 'none';
+    document.getElementById('tab-employee').style.display = 'none';
     document.getElementById('tab-' + tab).style.display = 'block';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
+    if (tab === 'master') { loadProductNos(); loadProductList(); }
+    if (tab === 'employee') {
+        loadEmployeeList();
+        fetch('/api/admin/departments', { credentials: 'include' })
+            .then(res => res.json())
+            .then(depts => {
+                const filterSelect = document.getElementById('filterEmpDept');
+                filterSelect.innerHTML = '<option value="">全部</option>';
+                depts.forEach(d => {
+                    const option = document.createElement('option');
+                    option.value = d.id;
+                    option.innerText = d.deptName;
+                    filterSelect.appendChild(option);
+                });
+            });
+    }
 }
 
 function toggleHoursFilter() {
@@ -367,7 +385,8 @@ function openEdit(r) {
     document.getElementById('editRemarks').value = r.remarks || '';
     document.getElementById('editIsComplete').checked = r.isComplete || false;
 
-    fetch('/api/process/byOrder/' + (r.workOrder || ''))
+    window._editProductNo = r.productNo || '';
+    fetch('/api/process/byProduct/' + (r.productNo || ''))
         .then(res => res.json())
         .then(list => {
             const select = document.getElementById('editProcess');
@@ -403,6 +422,17 @@ function openEdit(r) {
         });
 
     document.getElementById('editModal').classList.add('show');
+    document.getElementById('editLaborStart').oninput = function() {
+        if (document.getElementById('editMachineQty').value > 0) {
+            document.getElementById('editMachineTimeStart').value = this.value;
+        }
+    };
+    document.getElementById('editLaborEnd').oninput = function() {
+        if (document.getElementById('editMachineQty').value > 0) {
+            document.getElementById('editMachineTimeStart').value = document.getElementById('editLaborStart').value;
+            document.getElementById('editMachineTimeEnd').value = this.value;
+        }
+    };
 }
 
 function loadEditProcessList() {
@@ -411,7 +441,13 @@ function loadEditProcessList() {
     if (!order1 || !order2) { alert('請輸入完整製令號！'); return; }
     const order = order1 + '-' + order2;
 
-    fetch('/api/process/byOrder/' + order)
+    fetch('/api/workorder/' + order)
+        .then(res => res.json())
+        .then(data => {
+            if (!data) { alert('無此製令號！'); return Promise.reject(); }
+            window._editProductNo = data.productNo;
+            return fetch('/api/process/byProduct/' + data.productNo);
+        })
         .then(res => res.json())
         .then(list => {
             const select = document.getElementById('editProcess');
@@ -435,11 +471,8 @@ function onEditProcessChange() {
         window._editAvailableMachines = [];
         return;
     }
-    const order1 = document.getElementById('editWorkOrder1').value.trim();
-    const order2 = document.getElementById('editWorkOrder2').value.trim();
-    const order = order1 + '-' + order2;
 
-    fetch('/api/process/byOrder/' + order + '/' + processNo)
+    fetch('/api/process/byProduct/' + (window._editProductNo || '') + '/' + processNo)
         .then(res => res.json())
         .then(data => {
             if (data.length > 0) {
@@ -462,6 +495,16 @@ function onEditMachineQtyChange() {
     const area = document.getElementById('editMachineArea');
     area.innerHTML = '';
     const machines = window._editAvailableMachines || [];
+    const laborStart = document.getElementById('editLaborStart').value;
+    const laborEnd = document.getElementById('editLaborEnd').value;
+
+    if (qty === 0) {
+        document.getElementById('editMachineTimeStart').value = '';
+        document.getElementById('editMachineTimeEnd').value = '';
+    } else {
+        document.getElementById('editMachineTimeStart').value = laborStart;
+        document.getElementById('editMachineTimeEnd').value = laborEnd;
+    }
 
     for (let i = 1; i <= qty; i++) {
         const div = document.createElement('div');
@@ -492,6 +535,31 @@ function saveEdit() {
     const order2 = document.getElementById('editWorkOrder2').value.trim();
     const workOrder = order1 + '-' + order2;
     const qty = parseInt(document.getElementById('editMachineQty').value);
+    const laborStart = document.getElementById('editLaborStart').value;
+    const laborEnd = document.getElementById('editLaborEnd').value;
+    const machineTimeStart = document.getElementById('editMachineTimeStart').value;
+    const machineTimeEnd = document.getElementById('editMachineTimeEnd').value;
+
+    if (!laborStart || !laborEnd || laborStart === '0' || laborEnd === '0') {
+        alert('請填寫人時！'); return;
+    }
+    if (laborStart.length !== 4 || laborEnd.length !== 4) {
+        alert('人時格式錯誤，請填寫4位數（例如：0800）！'); return;
+    }
+    if (qty > 0) {
+        if (!machineTimeStart || !machineTimeEnd || machineTimeStart === '0' || machineTimeEnd === '0') {
+            alert('請填寫機時！'); return;
+        }
+        if (machineTimeStart.length !== 4 || machineTimeEnd.length !== 4) {
+            alert('機時格式錯誤，請填寫4位數（例如：0800）！'); return;
+        }
+        for (let i = 1; i <= qty; i++) {
+            const mc = document.getElementById('editMachineCode' + i);
+            if (mc && !mc.value) {
+                alert('請選擇機台！'); return;
+            }
+        }
+    }
     const machines = [];
     for (let i = 1; i <= qty; i++) {
         const mc = document.getElementById('editMachineCode' + i);
@@ -507,6 +575,7 @@ function saveEdit() {
     const data = {
         productionDate: document.getElementById('editProductionDate').value,
         workOrder: workOrder,
+        productNo: window._editProductNo || '',
         process: document.getElementById('editProcess').value,
         machineCode: machines.length > 0 ? machines[0].machineCode : '',
         laborTimeStart: document.getElementById('editLaborStart').value,
@@ -557,4 +626,676 @@ function deleteReport() {
 function logout() {
     fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
         .then(() => { window.location.href = '/login.html'; });
+}
+
+function loadProductNos() {
+    fetch('/api/workorder/list', { credentials: 'include' })
+        .then(res => res.json())
+        .then(list => {
+            const productNos = [...new Set(list.map(w => w.productNo).filter(p => p))];
+            ['newOrderProductNo', 'addOrderProductNo'].forEach(id => {
+                const select = document.getElementById(id);
+                if (!select) return;
+                select.innerHTML = '<option value="">--選擇品號--</option>';
+                productNos.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p;
+                    option.innerText = p;
+                    select.appendChild(option);
+                });
+            });
+        });
+}
+
+function switchMaster(sub, btn) {
+    document.getElementById('master-product').style.display = 'none';
+    document.getElementById('master-order').style.display = 'none';
+    document.getElementById('master-' + sub).style.display = 'block';
+    document.querySelectorAll('.btn-sub').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (sub === 'product') loadProductList();
+    if (sub === 'order') loadOrderList();
+}
+
+function loadProductList() {
+    fetch('/api/workorder/list', { credentials: 'include' })
+        .then(res => res.json())
+        .then(list => {
+            const productNos = [...new Set(list.map(w => w.productNo).filter(p => p))];
+            const tbody = document.getElementById('productBody');
+            tbody.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            headerRow.className = 'sub-header';
+            headerRow.innerHTML = '<td>品號</td><td>工序數量</td><td>操作</td>';
+            tbody.appendChild(headerRow);
+            if (productNos.length === 0) {
+                tbody.innerHTML += '<tr><td colspan="3" style="text-align:center;">查無品號</td></tr>';
+                return;
+            }
+            productNos.forEach(p => {
+                fetch('/api/process/byProduct/' + p)
+                    .then(res => res.json())
+                    .then(processes => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${p}</td>
+                            <td>${processes.length}</td>
+                            <td><button class="btn-edit" onclick="openProductDetail('${p}')">查看/編輯</button></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+            });
+        });
+}
+
+function loadOrderList() {
+    fetch('/api/workorder/list', { credentials: 'include' })
+        .then(res => res.json())
+        .then(list => {
+            const tbody = document.getElementById('orderBody');
+            tbody.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            headerRow.className = 'sub-header';
+            headerRow.innerHTML = '<td>製令號</td><td>品號</td><td>操作</td>';
+            tbody.appendChild(headerRow);
+            if (list.length === 0) {
+                tbody.innerHTML += '<tr><td colspan="3" style="text-align:center;">查無製令</td></tr>';
+                return;
+            }
+            list.forEach(w => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${w.orderNo}</td>
+                    <td>${w.productNo || ''}</td>
+                    <td><button class="btn-delete" style="font-size:12px;padding:3px 8px;" onclick="deleteOrder(${w.id})">刪除</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+}
+
+function openAddProduct() {
+    document.getElementById('addProductNo').value = '';
+    document.getElementById('addProductImage').value = '';
+    const table = document.getElementById('addProcessTable');
+    while (table.rows.length > 1) table.deleteRow(1);
+    document.getElementById('addProductModal').classList.add('show');
+}
+
+function closeAddProduct() {
+    document.getElementById('addProductModal').classList.remove('show');
+}
+
+function addProcessRow() {
+    const table = document.getElementById('addProcessTable');
+    const row = table.insertRow();
+    const idx = table.rows.length - 1;
+    row.innerHTML = `
+        <td><input type="text" placeholder="0010" style="width:70px;" /></td>
+        <td><input type="text" placeholder="EH21" style="width:70px;" /></td>
+        <td><input type="text" placeholder="組裝" style="width:80px;" /></td>
+        <td><button class="btn-delete" style="font-size:12px;padding:3px 8px;" onclick="this.closest('tr').remove()">刪除</button></td>
+    `;
+}
+
+function saveNewProduct() {
+    const productNo = document.getElementById('addProductNo').value.trim();
+    if (!productNo) { alert('請輸入品號！'); return; }
+
+    const table = document.getElementById('addProcessTable');
+    const processes = [];
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        const inputs = row.querySelectorAll('input');
+        if (inputs[0].value && inputs[1].value && inputs[2].value) {
+            processes.push({
+                processNo: inputs[0].value.trim(),
+                processCode: inputs[1].value.trim(),
+                processName: inputs[2].value.trim()
+            });
+        }
+    }
+
+    if (processes.length === 0) { alert('請至少新增一筆工序！'); return; }
+
+    const imageFile = document.getElementById('addProductImage').files[0];
+
+    const saveProcesses = () => {
+        const promises = processes.map(p =>
+            fetch('/api/admin/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ productNo, ...p })
+            })
+        );
+        Promise.all(promises).then(() => {
+            closeAddProduct();
+            loadProductList();
+            loadProductNos();
+            openProductDetail(productNo);
+        });
+    };
+
+    if (imageFile) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        formData.append('productNo', productNo);
+        formData.append('processNo', 'product');
+        formData.append('docType', 'IMG');
+        fetch('/api/admin/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        }).then(() => saveProcesses());
+    } else {
+        saveProcesses();
+    }
+}
+
+function openAddOrder() {
+    document.getElementById('addOrderNo1').value = '';
+    document.getElementById('addOrderNo2').value = '';
+    loadProductNos();
+    document.getElementById('addOrderModal').classList.add('show');
+}
+
+function closeAddOrder() {
+    document.getElementById('addOrderModal').classList.remove('show');
+}
+
+function saveNewOrder() {
+    const order1 = document.getElementById('addOrderNo1').value.trim();
+    const order2 = document.getElementById('addOrderNo2').value.trim();
+    const productNo = document.getElementById('addOrderProductNo').value;
+    if (!order1 || !order2) { alert('請輸入完整製令號！'); return; }
+    if (!productNo) { alert('請選擇品號！'); return; }
+
+    fetch('/api/admin/workorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ orderNo: order1 + '-' + order2, productNo })
+    }).then(res => {
+        if (res.ok) {
+            alert('製令新增成功！');
+            closeAddOrder();
+            loadOrderList();
+        } else {
+            alert('新增失敗，製令可能已存在！');
+        }
+    });
+}
+
+function deleteOrder(id) {
+    if (!confirm('確定要刪除此製令嗎？')) return;
+    fetch('/api/admin/workorder/' + id, {
+        method: 'DELETE',
+        credentials: 'include'
+    }).then(res => {
+        if (res.ok) {
+            alert('刪除成功！');
+            loadOrderList();
+        } else {
+            alert('刪除失敗！');
+        }
+    });
+}
+
+function openProductDetail(productNo) {
+    document.getElementById('detailProductNo').value = productNo;
+    document.getElementById('detailProductImage').innerHTML = '';
+    document.getElementById('updateProductImage').value = '';
+
+    fetch('/api/process/byProduct/' + productNo)
+        .then(res => res.json())
+        .then(processes => {
+            const table = document.getElementById('detailProcessTable');
+            while (table.rows.length > 1) table.deleteRow(1);
+            processes.forEach(p => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${p.processNo}</td>
+                    <td>${p.processCode}</td>
+                    <td>${p.processName || ''}</td>
+                    <td id="sop_${p.processNo}">
+                        <input type="file" accept="image/*" style="font-size:11px;" onchange="uploadDoc('${productNo}', '${p.processNo}', 'SOP', this)" />
+                    </td>
+                    <td id="sip_${p.processNo}">
+                        <input type="file" accept="image/*" style="font-size:11px;" onchange="uploadDoc('${productNo}', '${p.processNo}', 'SIP', this)" />
+                    </td>
+                    <td>
+                        <button class="btn-edit" style="font-size:12px;padding:3px 8px;margin-right:4px;" onclick="openEditProcess('${productNo}', '${p.processNo}', '${p.processCode}', '${p.processName || ''}')">編輯</button>
+                        <button class="btn-delete" style="font-size:12px;padding:3px 8px;" onclick="deleteProcess('${productNo}', '${p.processNo}')">刪除</button>
+                    </td>
+                `;
+
+                // 查詢已上傳的圖片
+                fetch('/api/document/' + productNo + '/' + p.processNo)
+                    .then(res => res.json())
+                    .then(docs => {
+                        docs.forEach(doc => {
+                            const cellId = doc.docType === 'SOP' ? 'sop_' + p.processNo : 'sip_' + p.processNo;
+                            const cell = document.getElementById(cellId);
+                            if (cell) {
+                                cell.innerHTML = `
+                                    <span style="color:green;font-size:11px;">✔ ${doc.filePath ? doc.filePath.split('/').pop() : ''}</span>
+                                    <br>
+                                    <input type="file" accept="image/*" style="font-size:11px;" onchange="uploadDoc('${productNo}', '${p.processNo}', '${doc.docType}', this)" />
+                                `;
+                            }
+                        });
+                    });
+            });
+        });
+
+    document.getElementById('productDetailModal').classList.add('show');
+}
+
+function closeProductDetail() {
+    document.getElementById('productDetailModal').classList.remove('show');
+}
+
+function deleteProduct() {
+    const productNo = document.getElementById('detailProductNo').value;
+    if (!confirm('確定要刪除品號 ' + productNo + ' 及所有工序嗎？')) return;
+    fetch('/api/admin/product/' + encodeURIComponent(productNo), {
+        method: 'DELETE',
+        credentials: 'include'
+    }).then(res => {
+        if (res.ok) {
+            alert('刪除成功！');
+            closeProductDetail();
+            loadProductList();
+        } else {
+            alert('刪除失敗！');
+        }
+    });
+}
+
+function uploadDoc(productNo, processNo, docType, input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('productNo', productNo);
+    formData.append('processNo', processNo);
+    formData.append('docType', docType);
+
+    fetch('/api/admin/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+    }).then(res => {
+        if (res.ok) {
+            return res.json();
+        } else {
+            throw new Error('上傳失敗');
+        }
+    }).then(data => {
+        alert(docType + ' 上傳成功！');
+        const cell = input.parentNode;
+        cell.innerHTML = `
+            <a href="${data.path}" target="_blank">查看</a>
+            <input type="file" accept="image/*" style="font-size:11px;display:block;margin-top:4px;" onchange="uploadDoc('${productNo}', '${processNo}', '${docType}', this)" />
+        `;
+    }).catch(err => {
+        alert('上傳失敗：' + err.message);
+        input.value = '';
+    });
+}
+
+function loadEmployeeList(deptId) {
+    fetch('/api/admin/employees', { credentials: 'include' })
+        .then(res => res.json())
+        .then(emps => {
+            if (deptId) emps = emps.filter(e => String(e.deptId) === String(deptId));
+            const tbody = document.getElementById('employeeBody');
+            tbody.innerHTML = '';
+            const headerRow = document.createElement('tr');
+            headerRow.className = 'sub-header';
+            headerRow.innerHTML = '<td>員工編號</td><td>姓名</td><td>部門</td><td>到職日期</td><td>操作</td>';
+            tbody.appendChild(headerRow);
+            if (emps.length === 0) {
+                tbody.innerHTML += '<tr><td colspan="5" style="text-align:center;">查無員工</td></tr>';
+                return;
+            }
+            emps.forEach(e => {
+                const row = document.createElement('tr');
+                const hireDate = e.hireDate ? e.hireDate.substring(0,4) + '/' + e.hireDate.substring(4,6) + '/' + e.hireDate.substring(6,8) : '';
+                row.innerHTML = `
+                    <td>${e.employeeNo}</td>
+                    <td>${e.employeeName}</td>
+                    <td>${e.deptName || ''}</td>
+                    <td>${hireDate}</td>
+                    <td>
+                        <button class="btn-edit" style="font-size:12px;padding:3px 8px;margin-right:4px;" onclick="openEditEmployee(${JSON.stringify(e).replace(/"/g, '&quot;')})">細項</button>
+                        <button class="btn-delete" style="font-size:12px;padding:3px 8px;" onclick="deleteEmployee('${e.employeeNo}')">刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+}
+
+function openAddEmployee() {
+    fetch('/api/admin/employees', { credentials: 'include' })
+        .then(res => res.json())
+        .then(emps => {
+            // 找最大編號+1
+            let maxNo = 0;
+            emps.forEach(e => {
+                const no = parseInt(e.employeeNo);
+                if (!isNaN(no) && no > maxNo) maxNo = no;
+            });
+            const nextNo = String(maxNo + 1).padStart(5, '0');
+            document.getElementById('newEmpNo').value = nextNo;
+        });
+
+    const select = document.getElementById('newEmpDept');
+    select.innerHTML = '<option value="">--選擇部門--</option>';
+    fetch('/api/admin/departments', { credentials: 'include' })
+        .then(res => res.json())
+        .then(depts => {
+            depts.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d.id;
+                option.innerText = d.deptName;
+                select.appendChild(option);
+            });
+        });
+
+    document.getElementById('newEmpName').value = '';
+    // 同步部門到篩選下拉
+    fetch('/api/admin/departments', { credentials: 'include' })
+        .then(res => res.json())
+        .then(depts => {
+            const filterSelect = document.getElementById('filterEmpDept');
+            filterSelect.innerHTML = '<option value="">全部</option>';
+            depts.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d.id;
+                option.innerText = d.deptName;
+                filterSelect.appendChild(option);
+            });
+        });
+    document.getElementById('addEmployeeModal').classList.add('show');
+}
+
+function closeAddEmployee() {
+    document.getElementById('addEmployeeModal').classList.remove('show');
+}
+
+function saveNewEmployee() {
+    const empNo = document.getElementById('newEmpNo').value;
+    const empName = document.getElementById('newEmpName').value.trim();
+    const deptId = document.getElementById('newEmpDept').value;
+    const hireDate = document.getElementById('newEmpHireDate').value.trim();
+    const gender = document.getElementById('newEmpGender').value;
+    const position = document.getElementById('newEmpPosition').value;
+    const phone = document.getElementById('newEmpPhone').value.trim();
+    const idNumber = document.getElementById('newEmpIdNumber').value.trim();
+    const emergencyContact = document.getElementById('newEmpEmergencyContact').value.trim();
+    const photoFile = document.getElementById('newEmpPhoto').files[0];
+
+    if (!empName) { alert('請輸入姓名！'); return; }
+    if (!deptId) { alert('請選擇部門！'); return; }
+
+    const saveEmployee = (photoPath) => {
+        fetch('/api/admin/employee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                employeeNo: empNo,
+                employeeName: empName,
+                deptId: parseInt(deptId),
+                hireDate,
+                gender,
+                position,
+                phone,
+                idNumber,
+                emergencyContact,
+                photo: photoPath || ''
+            })
+        }).then(res => {
+            if (res.ok) {
+                alert('員工新增成功！');
+                closeAddEmployee();
+                loadEmployeeList();
+                loadDepartments();
+            } else {
+                alert('新增失敗！');
+            }
+        });
+    };
+
+    if (photoFile) {
+        const formData = new FormData();
+        formData.append('file', photoFile);
+        formData.append('productNo', 'employee');
+        formData.append('processNo', empNo);
+        formData.append('docType', 'PHOTO');
+        fetch('/api/admin/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        }).then(res => res.json())
+            .then(data => saveEmployee(data.path))
+            .catch(() => saveEmployee(''));
+    } else {
+        saveEmployee('');
+    }
+}
+
+function deleteEmployee(employeeNo) {
+    if (!confirm('確定要刪除員工 ' + employeeNo + ' 嗎？')) return;
+    fetch('/api/admin/employee/' + employeeNo, {
+        method: 'DELETE',
+        credentials: 'include'
+    }).then(res => {
+        if (res.ok) {
+            alert('刪除成功！');
+            loadEmployeeList();
+            loadDepartments();
+        } else {
+            alert('刪除失敗！');
+        }
+    });
+}
+
+function openAddProcessToProduct() {
+    const productNo = document.getElementById('detailProductNo').value;
+    window._processModalMode = 'add';
+    window._processModalProductNo = productNo;
+    window._processModalOldProcessNo = null;
+    document.getElementById('processModalTitle').innerText = '新增工序';
+    document.getElementById('processModalNo').value = '';
+    document.getElementById('processModalCode').value = '';
+    document.getElementById('processModalName').value = '';
+    document.getElementById('processModalNo').readOnly = false;
+    document.getElementById('processModalNo').style.background = '';
+    document.getElementById('processModal').classList.add('show');
+}
+
+function openEditProcess(productNo, processNo, processCode, processName) {
+    window._processModalMode = 'edit';
+    window._processModalProductNo = productNo;
+    window._processModalOldProcessNo = processNo;
+    document.getElementById('processModalTitle').innerText = '編輯工序';
+    document.getElementById('processModalNo').value = processNo;
+    document.getElementById('processModalCode').value = processCode;
+    document.getElementById('processModalName').value = processName;
+    document.getElementById('processModalNo').readOnly = false;
+    document.getElementById('processModalNo').style.background = '';
+    document.getElementById('processModal').classList.add('show');
+}
+
+function closeProcessModal() {
+    document.getElementById('processModal').classList.remove('show');
+}
+
+function saveProcessModal() {
+    const productNo = window._processModalProductNo;
+    const processNo = document.getElementById('processModalNo').value.trim();
+    const processCode = document.getElementById('processModalCode').value.trim();
+    const processName = document.getElementById('processModalName').value.trim();
+
+    if (!processNo) { alert('請輸入工序號！'); return; }
+    if (!processCode) { alert('請輸入製程代號！'); return; }
+    if (!processName) { alert('請輸入工序名稱！'); return; }
+
+    if (window._processModalMode === 'add') {
+        fetch('/api/admin/process', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ productNo, processNo, processCode, processName })
+        }).then(res => {
+            if (res.ok) {
+                alert('工序新增成功！');
+                closeProcessModal();
+                openProductDetail(productNo);
+            } else {
+                alert('新增失敗！');
+            }
+        });
+    } else {
+        fetch('/api/admin/process/' + encodeURIComponent(productNo) + '/' + encodeURIComponent(window._processModalOldProcessNo), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ productNo, processNo, processCode, processName })
+        }).then(res => {
+            if (res.ok) {
+                alert('工序修改成功！');
+                closeProcessModal();
+                openProductDetail(productNo);
+            } else {
+                alert('修改失敗！');
+            }
+        });
+    }
+}
+
+function deleteProcess(productNo, processNo) {
+    if (!confirm('確定要刪除工序 ' + processNo + ' 嗎？')) return;
+    fetch('/api/admin/process/' + encodeURIComponent(productNo) + '/' + encodeURIComponent(processNo), {
+        method: 'DELETE',
+        credentials: 'include'
+    }).then(res => {
+        if (res.ok) {
+            alert('刪除成功！');
+            openProductDetail(productNo);
+        } else {
+            alert('刪除失敗！');
+        }
+    });
+}
+
+function openEditEmployee(e) {
+    document.getElementById('editEmpNo').value = e.employeeNo;
+    document.getElementById('editEmpName').value = e.employeeName || '';
+    document.getElementById('editEmpGender').value = e.gender || '';
+    document.getElementById('editEmpPosition').value = e.position || '';
+    document.getElementById('editEmpHireDate').value = e.hireDate || '';
+    document.getElementById('editEmpPhone').value = e.phone || '';
+    document.getElementById('editEmpIdNumber').value = e.idNumber || '';
+    document.getElementById('editEmpEmergencyContact').value = e.emergencyContact || '';
+    document.getElementById('editEmpEmergencyPhone').value = e.emergencyPhone || '';
+    document.getElementById('editEmpEmergencyRelation').value = e.emergencyRelation || '';
+    document.getElementById('editEmpPhoto').value = '';
+    window._editEmpCurrentPhoto = e.photo || '';
+
+    if (e.photo) {
+        const fileName = e.photo.split('/').pop();
+        document.getElementById('editEmpPhotoPreview').innerHTML = `<img src="/api/admin/file/${fileName}" style="width:80px;height:80px;object-fit:cover;margin-bottom:5px;"><br>`;
+    } else {
+        document.getElementById('editEmpPhotoPreview').innerHTML = '';
+    }
+
+    const select = document.getElementById('editEmpDept');
+    select.innerHTML = '<option value="">--選擇部門--</option>';
+    fetch('/api/admin/departments', { credentials: 'include' })
+        .then(res => res.json())
+        .then(depts => {
+            depts.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d.id;
+                option.innerText = d.deptName;
+                select.appendChild(option);
+            });
+            select.value = String(e.deptId) || '';
+        });
+
+    document.getElementById('editEmployeeModal').classList.add('show');
+}
+
+function closeEditEmployee() {
+    document.getElementById('editEmployeeModal').classList.remove('show');
+}
+
+function saveEditEmployee() {
+    const empNo = document.getElementById('editEmpNo').value;
+    const empName = document.getElementById('editEmpName').value.trim();
+    const deptId = document.getElementById('editEmpDept').value;
+    const hireDate = document.getElementById('editEmpHireDate').value.trim();
+    const gender = document.getElementById('editEmpGender').value;
+    const position = document.getElementById('editEmpPosition').value;
+    const phone = document.getElementById('editEmpPhone').value.trim();
+    const idNumber = document.getElementById('editEmpIdNumber').value.trim();
+    const emergencyContact = document.getElementById('editEmpEmergencyContact').value.trim();
+    const emergencyPhone = document.getElementById('editEmpEmergencyPhone').value.trim();
+    const emergencyRelation = document.getElementById('editEmpEmergencyRelation').value.trim();
+    const photoFile = document.getElementById('editEmpPhoto').files[0];
+
+    if (!empName) { alert('請輸入姓名！'); return; }
+    if (!deptId) { alert('請選擇部門！'); return; }
+
+    const updateEmployee = (photoPath) => {
+        fetch('/api/admin/employee/' + empNo, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                employeeName: empName,
+                deptId: parseInt(deptId),
+                hireDate,
+                gender,
+                position,
+                phone,
+                idNumber,
+                emergencyContact,
+                emergencyPhone,
+                emergencyRelation,
+                photo: photoPath
+            })
+        }).then(res => {
+            if (res.ok) {
+                alert('更新成功！');
+                closeEditEmployee();
+                loadEmployeeList();
+            } else {
+                alert('更新失敗！');
+            }
+        });
+    };
+
+    if (photoFile) {
+        const formData = new FormData();
+        formData.append('file', photoFile);
+        formData.append('productNo', 'employee');
+        formData.append('processNo', empNo);
+        formData.append('docType', 'PHOTO');
+        fetch('/api/admin/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        }).then(res => res.json())
+            .then(data => updateEmployee(data.path))
+            .catch(() => updateEmployee(''));
+    } else {
+        updateEmployee(window._editEmpCurrentPhoto || '');
+    }
 }

@@ -12,7 +12,7 @@ public class WorkOrderDocument {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String orderNo;
+    private String productNo;
     private String processNo;
     private String docType;
     private String filePath;

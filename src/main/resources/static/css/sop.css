@@ -3,8 +3,10 @@ body {
     margin: 0;
     padding: 0;
     background: #fff;
+    color: #333;
     font-size: 14px;
 }
+
 
 .notice {
     background: #ccff99;
