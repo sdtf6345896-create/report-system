@@ -21,7 +21,7 @@ public class ProcessMasterService {
     }
 
     public List<ProcessMaster> findByProductNo(String productNo) {
-        return repo.findByProductNo(productNo);
+        return repo.findByProductNoOrderByProcessNoAsc(productNo);
     }
 
     public List<ProcessMaster> findByProductNoAndProcessNo(String productNo, String processNo) {

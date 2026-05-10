@@ -629,10 +629,9 @@ function logout() {
 }
 
 function loadProductNos() {
-    fetch('/api/workorder/list', { credentials: 'include' })
+    fetch('/api/process/allProductNos', { credentials: 'include' })
         .then(res => res.json())
-        .then(list => {
-            const productNos = [...new Set(list.map(w => w.productNo).filter(p => p))];
+        .then(productNos => {
             ['newOrderProductNo', 'addOrderProductNo'].forEach(id => {
                 const select = document.getElementById(id);
                 if (!select) return;
@@ -658,10 +657,9 @@ function switchMaster(sub, btn) {
 }
 
 function loadProductList() {
-    fetch('/api/workorder/list', { credentials: 'include' })
+    fetch('/api/process/allProductNos', { credentials: 'include' })
         .then(res => res.json())
-        .then(list => {
-            const productNos = [...new Set(list.map(w => w.productNo).filter(p => p))];
+        .then(productNos => {
             const tbody = document.getElementById('productBody');
             tbody.innerHTML = '';
             const headerRow = document.createElement('tr');
@@ -1033,10 +1031,12 @@ function saveNewEmployee() {
     const deptId = document.getElementById('newEmpDept').value;
     const hireDate = document.getElementById('newEmpHireDate').value.trim();
     const gender = document.getElementById('newEmpGender').value;
-    const position = document.getElementById('newEmpPosition').value;
+    const position = document.getElementById('newEmpPosition').value.trim();
     const phone = document.getElementById('newEmpPhone').value.trim();
     const idNumber = document.getElementById('newEmpIdNumber').value.trim();
     const emergencyContact = document.getElementById('newEmpEmergencyContact').value.trim();
+    const emergencyPhone = document.getElementById('newEmpEmergencyPhone').value.trim();
+    const emergencyRelation = document.getElementById('newEmpEmergencyRelation').value.trim();
     const photoFile = document.getElementById('newEmpPhoto').files[0];
 
     if (!empName) { alert('請輸入姓名！'); return; }
@@ -1057,6 +1057,8 @@ function saveNewEmployee() {
                 phone,
                 idNumber,
                 emergencyContact,
+                emergencyPhone,
+                emergencyRelation,
                 photo: photoPath || ''
             })
         }).then(res => {

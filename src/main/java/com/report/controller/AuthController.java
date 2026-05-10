@@ -37,7 +37,7 @@ public class AuthController {
         session.setAttribute("user", user);
         result.put("success", true);
         result.put("role", user.getRole());
-        result.put("employeeId", user.getEmployeeId());
+        result.put("employeeId", user.getId());
         return ResponseEntity.ok(result);
     }
 
@@ -56,7 +56,7 @@ public class AuthController {
         } else {
             result.put("loggedIn", true);
             result.put("role", user.getRole());
-            result.put("employeeId", user.getEmployeeId());
+            result.put("employeeId", user.getId());
         }
         return ResponseEntity.ok(result);
     }

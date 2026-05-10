@@ -276,7 +276,7 @@ public class AdminController {
         String processCode = (String) body.get("processCode");
         String processName = (String) body.get("processName");
 
-        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNo(productNo);
+        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNoOrderByProcessNoAsc(productNo);
         processes.stream()
                 .filter(p -> processNo.equals(p.getProcessNo()))
                 .findFirst()
@@ -300,7 +300,7 @@ public class AdminController {
 
     @DeleteMapping("/process/{productNo}/{processNo}")
     public ResponseEntity<?> deleteProcess(@PathVariable String productNo, @PathVariable String processNo) {
-        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNo(productNo);
+        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNoOrderByProcessNoAsc(productNo);
         processes.stream()
                 .filter(p -> processNo.equals(p.getProcessNo()))
                 .findFirst()
@@ -310,7 +310,7 @@ public class AdminController {
 
     @DeleteMapping("/product/{productNo}")
     public ResponseEntity<?> deleteProduct(@PathVariable String productNo) {
-        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNo(productNo);
+        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNoOrderByProcessNoAsc(productNo);
         processMasterRepo.deleteAll(processes);
         return ResponseEntity.ok().build();
     }
@@ -339,7 +339,21 @@ public class AdminController {
             Path filePath = Paths.get(uploadDir + fileName);
             Files.write(filePath, file.getBytes());
 
-            return ResponseEntity.ok(Map.of("fileName", fileName, "path", "/uploads/" + fileName));
+            // 存進資料庫
+            List<com.report.model.WorkOrderDocument> existing = workOrderDocumentRepo.findByProductNoAndProcessNoAndDocType(productNo, processNo, docType);
+            com.report.model.WorkOrderDocument doc;
+            if (!existing.isEmpty()) {
+                doc = existing.get(0);
+            } else {
+                doc = new com.report.model.WorkOrderDocument();
+                doc.setProductNo(productNo);
+                doc.setProcessNo(processNo);
+                doc.setDocType(docType);
+            }
+            doc.setFilePath(fileName);
+            workOrderDocumentRepo.save(doc);
+
+            return ResponseEntity.ok(Map.of("fileName", fileName, "path", "/api/admin/file/" + fileName));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("上傳失敗：" + e.getMessage());
         }

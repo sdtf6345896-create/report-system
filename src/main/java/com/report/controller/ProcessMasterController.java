@@ -35,4 +35,12 @@ public class ProcessMasterController {
             @PathVariable String processNo) {
         return svc.findByProductNoAndProcessNo(productNo, processNo);
     }
+    @GetMapping("/allProductNos")
+    public List<String> getAllProductNos() {
+        return svc.findAll().stream()
+                .map(p -> p.getProductNo())
+                .filter(p -> p != null && !p.isEmpty())
+                .distinct()
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

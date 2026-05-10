@@ -8,6 +8,6 @@ import java.util.List;
 @Repository
 public interface ProcessMasterRepository extends JpaRepository<ProcessMaster, Long> {
     List<ProcessMaster> findByProcessNo(String processNo);
-    List<ProcessMaster> findByProductNo(String productNo);
+    List<ProcessMaster> findByProductNoOrderByProcessNoAsc(String productNo);
     List<ProcessMaster> findByProductNoAndProcessNo(String productNo, String processNo);
 }

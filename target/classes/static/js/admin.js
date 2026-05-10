@@ -629,10 +629,9 @@ function logout() {
 }
 
 function loadProductNos() {
-    fetch('/api/workorder/list', { credentials: 'include' })
+    fetch('/api/process/allProductNos', { credentials: 'include' })
         .then(res => res.json())
-        .then(list => {
-            const productNos = [...new Set(list.map(w => w.productNo).filter(p => p))];
+        .then(productNos => {
             ['newOrderProductNo', 'addOrderProductNo'].forEach(id => {
                 const select = document.getElementById(id);
                 if (!select) return;
@@ -658,10 +657,9 @@ function switchMaster(sub, btn) {
 }
 
 function loadProductList() {
-    fetch('/api/workorder/list', { credentials: 'include' })
+    fetch('/api/process/allProductNos', { credentials: 'include' })
         .then(res => res.json())
-        .then(list => {
-            const productNos = [...new Set(list.map(w => w.productNo).filter(p => p))];
+        .then(productNos => {
             const tbody = document.getElementById('productBody');
             tbody.innerHTML = '';
             const headerRow = document.createElement('tr');
