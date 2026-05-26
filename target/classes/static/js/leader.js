@@ -81,7 +81,7 @@ function loadReports() {
             sortedDates.forEach(date => {
                 if (tbody.children.length > 0) {
                     const spaceRow = document.createElement('tr');
-                    spaceRow.innerHTML = '<td colspan="14" style="height:15px;background:#f5f5f5;border:none;"></td>';
+                    spaceRow.innerHTML = '<td colspan="14" style="height:8px;background:transparent;border:none;"></td>';
                     tbody.appendChild(spaceRow);
                 }
 

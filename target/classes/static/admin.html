@@ -6,19 +6,19 @@
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
+
 <div class="header">
     <span>管理者後台</span>
     <button class="btn-logout" onclick="logout()">登出</button>
 </div>
 
 <div class="container">
-    <h2>管理系統</h2>
-
     <div class="tab-bar">
         <button class="tab active" onclick="switchTab('report', this)">生產報工</button>
         <button class="tab" onclick="switchTab('hours', this)">工時管理</button>
         <button class="tab" onclick="switchTab('master', this)">生產主檔</button>
         <button class="tab" onclick="switchTab('employee', this)">員工資料</button>
+        <button class="tab" onclick="switchTab('machine', this)">機台管理</button>
     </div>
 
     <!-- 生產報工 -->
@@ -27,22 +27,16 @@
             <label>生產日期：</label>
             <input type="text" id="filterDate" placeholder="例如：20260411" />
             <label>組別：</label>
-            <select id="filterDept">
-                <option value="">全部</option>
-            </select>
+            <select id="filterDept"><option value="">全部</option></select>
             <label>員工：</label>
-            <select id="filterEmployee">
-                <option value="">全部</option>
-            </select>
+            <select id="filterEmployee"><option value="">全部</option></select>
             <button onclick="loadReports()">查詢</button>
             <button onclick="clearFilter()">清除</button>
         </div>
         <div class="table-wrapper">
-            <table>
-                <tbody id="reportBody">
-                <tr><td colspan="15" style="text-align:center;">載入中...</td></tr>
-                </tbody>
-            </table>
+            <table><tbody id="reportBody">
+            <tr><td colspan="15" style="text-align:center;">載入中...</td></tr>
+            </tbody></table>
         </div>
     </div>
 
@@ -56,13 +50,9 @@
             </select>
             <span id="empFilter">
                 <label>組別：</label>
-                <select id="filterHoursDept">
-                    <option value="">全部</option>
-                </select>
+                <select id="filterHoursDept"><option value="">全部</option></select>
                 <label>員工：</label>
-                <select id="filterHoursEmp">
-                    <option value="">全部</option>
-                </select>
+                <select id="filterHoursEmp"><option value="">全部</option></select>
             </span>
             <span id="machineFilter" style="display:none;">
                 <label>機台：</label>
@@ -72,11 +62,9 @@
             <button onclick="clearHoursFilter()">清除</button>
         </div>
         <div class="table-wrapper">
-            <table>
-                <tbody id="hoursBody">
-                <tr><td colspan="5" style="text-align:center;">請選擇條件後按查詢</td></tr>
-                </tbody>
-            </table>
+            <table><tbody id="hoursBody">
+            <tr><td colspan="5" style="text-align:center;">請選擇條件後按查詢</td></tr>
+            </tbody></table>
         </div>
     </div>
 
@@ -86,32 +74,24 @@
             <button class="btn-sub active" id="btnSubProduct" onclick="switchMaster('product', this)">品號管理</button>
             <button class="btn-sub" id="btnSubOrder" onclick="switchMaster('order', this)">製令管理</button>
         </div>
-
-        <!-- 品號管理 -->
         <div id="master-product">
             <div class="filter-bar">
                 <button class="btn-save" onclick="openAddProduct()">＋ 新增品號</button>
             </div>
             <div class="table-wrapper">
-                <table id="productTable">
-                    <tbody id="productBody">
-                    <tr><td colspan="4" style="text-align:center;">載入中...</td></tr>
-                    </tbody>
-                </table>
+                <table id="productTable"><tbody id="productBody">
+                <tr><td colspan="4" style="text-align:center;">載入中...</td></tr>
+                </tbody></table>
             </div>
         </div>
-
-        <!-- 製令管理 -->
         <div id="master-order" style="display:none;">
             <div class="filter-bar">
                 <button class="btn-save" onclick="openAddOrder()">＋ 新增製令</button>
             </div>
             <div class="table-wrapper">
-                <table id="orderTable">
-                    <tbody id="orderBody">
-                    <tr><td colspan="3" style="text-align:center;">載入中...</td></tr>
-                    </tbody>
-                </table>
+                <table id="orderTable"><tbody id="orderBody">
+                <tr><td colspan="3" style="text-align:center;">載入中...</td></tr>
+                </tbody></table>
             </div>
         </div>
     </div>
@@ -126,24 +106,38 @@
             <button class="btn-save" onclick="openAddEmployee()">＋ 新增員工</button>
         </div>
         <div class="table-wrapper">
-            <table>
-                <tbody id="employeeBody">
-                <tr><td colspan="5" style="text-align:center;">載入中...</td></tr>
-                </tbody>
-            </table>
+            <table><tbody id="employeeBody">
+            <tr><td colspan="5" style="text-align:center;">載入中...</td></tr>
+            </tbody></table>
         </div>
     </div>
 
+    <!-- 機台管理 -->
+    <div id="tab-machine" style="display:none;">
+        <div class="filter-bar">
+            <label>製程類型：</label>
+            <input type="text" id="filterMachineType" placeholder="例如：EH" style="width:80px;" />
+            <button onclick="loadMachineList()">查詢</button>
+            <button onclick="clearMachineFilter()">清除</button>
+            <button class="btn-save" style="margin-left:auto;" onclick="openAddMachine()">＋ 新增機台</button>
+        </div>
+        <div class="table-wrapper">
+            <table><tbody id="machineBody">
+            <tr><td colspan="4" style="text-align:center;">載入中...</td></tr>
+            </tbody></table>
+        </div>
+    </div>
 </div>
 
-<!-- 細項彈出視窗 -->
+<!-- 細項 Modal -->
 <div class="modal" id="detailModal">
     <div class="modal-box" style="width:400px;">
-        <h3 id="detailTitle">細項</h3>
-        <div class="table-wrapper">
-            <table>
-                <tbody id="detailBody"></tbody>
-            </table>
+        <div class="modal-header">
+            <h3 id="detailTitle">細項</h3>
+            <button class="modal-close-btn" onclick="closeDetailModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="table-wrapper"><table><tbody id="detailBody"></tbody></table></div>
         </div>
         <div class="modal-buttons">
             <button class="btn-cancel" onclick="closeDetailModal()">關閉</button>
@@ -151,108 +145,69 @@
     </div>
 </div>
 
-<!-- 編輯報工彈出視窗 -->
+<!-- 編輯報工 Modal -->
 <div class="modal" id="editModal">
     <div class="modal-box" style="width:500px;">
-        <h3>編輯報工紀錄</h3>
-        <div class="form-group">
-            <label>生產日期</label>
-            <input type="text" id="editProductionDate" />
+        <div class="modal-header">
+            <h3>編輯報工紀錄</h3>
+            <button class="modal-close-btn" onclick="closeModal()">✕</button>
         </div>
-        <div class="form-group">
-            <label>製令</label>
-            <input type="text" id="editWorkOrder1" style="width:80px;" />
-            <span>－</span>
-            <input type="text" id="editWorkOrder2" style="width:120px;" />
-            <button onclick="loadEditProcessList()">載入工序</button>
-        </div>
-        <div class="form-group">
-            <label>工序</label>
-            <select id="editProcess" onchange="onEditProcessChange()">
-                <option value="">--</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>製程代號</label>
-            <input type="text" id="editProcessCode" readonly />
-        </div>
-        <div class="form-group">
-            <label>人時(起)</label>
-            <input type="text" id="editLaborStart" />
-        </div>
-        <div class="form-group">
-            <label>人時(迄)</label>
-            <input type="text" id="editLaborEnd" />
-        </div>
-        <div class="form-group">
-            <label>機台數量</label>
-            <select id="editMachineQty" onchange="onEditMachineQtyChange()">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-        </div>
-        <div id="editMachineArea"></div>
-        <div class="form-group">
-            <label>機時(起)</label>
-            <input type="text" id="editMachineTimeStart" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>機時(迄)</label>
-            <input type="text" id="editMachineTimeEnd" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>數量</label>
-            <input type="number" id="editCompletedQty" />
-        </div>
-        <div class="form-group">
-            <label>報廢數量</label>
-            <input type="number" id="editScrapQty" />
-        </div>
-        <div class="form-group">
-            <label>備註</label>
-            <input type="text" id="editRemarks" />
-        </div>
-        <div class="form-group">
-            <label>是否完成</label>
-            <input type="checkbox" id="editIsComplete" />
+        <div class="modal-body">
+            <div class="form-group"><label>生產日期</label><input type="text" id="editProductionDate" /></div>
+            <div class="form-group">
+                <label>製令</label>
+                <div style="display:flex;gap:6px;align-items:center;flex:1;">
+                    <input type="text" id="editWorkOrder1" style="width:80px;" />
+                    <span style="color:#64748b;">－</span>
+                    <input type="text" id="editWorkOrder2" style="flex:1;" />
+                    <button class="btn-load" onclick="loadEditProcessList()">載入工序</button>
+                </div>
+            </div>
+            <div class="form-group"><label>工序</label><select id="editProcess" onchange="onEditProcessChange()"><option value="">--</option></select></div>
+            <div class="form-group"><label>製程代號</label><input type="text" id="editProcessCode" readonly /></div>
+            <div class="form-group"><label>人時(起)</label><input type="text" id="editLaborStart" /></div>
+            <div class="form-group"><label>人時(迄)</label><input type="text" id="editLaborEnd" /></div>
+            <div class="form-group"><label>機台數量</label>
+                <select id="editMachineQty" onchange="onEditMachineQtyChange()">
+                    <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+                    <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div id="editMachineArea"></div>
+            <div class="form-group"><label>機時(起)</label><input type="text" id="editMachineTimeStart" readonly /></div>
+            <div class="form-group"><label>機時(迄)</label><input type="text" id="editMachineTimeEnd" readonly /></div>
+            <div class="form-group"><label>數量</label><input type="number" id="editCompletedQty" /></div>
+            <div class="form-group"><label>報廢數量</label><input type="number" id="editScrapQty" /></div>
+            <div class="form-group"><label>備註</label><input type="text" id="editRemarks" /></div>
+            <div class="form-group"><label>是否完成</label><input type="checkbox" id="editIsComplete" /></div>
         </div>
         <div class="modal-buttons">
-            <button class="btn-delete" onclick="deleteReport()">刪除此報工</button>
+            <button class="btn-delete" onclick="deleteReport()">刪除</button>
             <button class="btn-save" onclick="saveEdit()">儲存</button>
             <button class="btn-cancel" onclick="closeModal()">取消</button>
         </div>
     </div>
 </div>
 
-<!-- 新增品號彈出視窗 -->
+<!-- 新增品號 Modal -->
 <div class="modal" id="addProductModal">
     <div class="modal-box" style="width:600px;max-height:80vh;overflow-y:auto;">
-        <h3>新增品號</h3>
-        <div class="form-group">
-            <label>品號</label>
-            <input type="text" id="addProductNo" placeholder="例如：66666-3666A" />
+        <div class="modal-header"><h3>新增品號</h3><button class="modal-close-btn" onclick="closeAddProduct()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>品號</label><input type="text" id="addProductNo" placeholder="例如：66666-3666A" /></div>
+            <div class="form-group"><label>產品圖片</label><input type="file" id="addProductImage" accept="image/*" /></div>
+            <hr style="border-color:rgba(51,65,85,0.5);margin:12px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <strong style="color:#93c5fd;">工序列表</strong>
+                <button class="btn-save" onclick="addProcessRow()">＋ 新增工序</button>
+            </div>
+            <table style="width:100%;border-collapse:collapse;" id="addProcessTable">
+                <tr><td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序號</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">製程代號</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序名稱</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">操作</td></tr>
+            </table>
         </div>
-        <div class="form-group">
-            <label>產品圖片</label>
-            <input type="file" id="addProductImage" accept="image/*" />
-        </div>
-        <hr>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <strong>工序列表</strong>
-            <button class="btn-save" onclick="addProcessRow()">＋ 新增工序</button>
-        </div>
-        <table style="width:100%;border-collapse:collapse;" id="addProcessTable">
-            <tr style="background:#1a3a5c;color:white;">
-                <td style="padding:6px;text-align:center;">工序號</td>
-                <td style="padding:6px;text-align:center;">製程代號</td>
-                <td style="padding:6px;text-align:center;">工序名稱</td>
-                <td style="padding:6px;text-align:center;">操作</td>
-            </tr>
-        </table>
         <div class="modal-buttons">
             <button class="btn-save" onclick="saveNewProduct()">儲存</button>
             <button class="btn-cancel" onclick="closeAddProduct()">取消</button>
@@ -260,21 +215,17 @@
     </div>
 </div>
 
-<!-- 新增製令彈出視窗 -->
+<!-- 新增製令 Modal -->
 <div class="modal" id="addOrderModal">
     <div class="modal-box" style="width:400px;">
-        <h3>新增製令</h3>
-        <div class="form-group">
-            <label>製令號</label>
-            <input type="text" id="addOrderNo1" style="width:80px;" placeholder="5111" />
-            <span>-</span>
-            <input type="text" id="addOrderNo2" style="width:120px;" placeholder="1511111" />
-        </div>
-        <div class="form-group">
-            <label>品號</label>
-            <select id="addOrderProductNo">
-                <option value="">--選擇品號--</option>
-            </select>
+        <div class="modal-header"><h3>新增製令</h3><button class="modal-close-btn" onclick="closeAddOrder()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>製令號</label>
+                <input type="text" id="addOrderNo1" style="width:80px;" placeholder="5111" />
+                <span style="color:#64748b;">-</span>
+                <input type="text" id="addOrderNo2" style="flex:1;" placeholder="1511111" />
+            </div>
+            <div class="form-group"><label>品號</label><select id="addOrderProductNo"><option value="">--選擇品號--</option></select></div>
         </div>
         <div class="modal-buttons">
             <button class="btn-save" onclick="saveNewOrder()">儲存</button>
@@ -283,33 +234,26 @@
     </div>
 </div>
 
-<!-- 品號詳細/編輯彈出視窗 -->
+<!-- 品號詳細 Modal -->
 <div class="modal" id="productDetailModal">
-    <div class="modal-box" style="width:600px;max-height:80vh;overflow-y:auto;">
-        <h3>品號詳細</h3>
-        <div class="form-group">
-            <label>品號</label>
-            <input type="text" id="detailProductNo" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>產品圖片</label>
-            <div id="detailProductImage"></div>
-            <input type="file" id="updateProductImage" accept="image/*" />
-        </div>
-        <hr>
-        <strong>工序列表</strong>
-        <table style="width:100%;border-collapse:collapse;margin-top:10px;" id="detailProcessTable">
-            <tr style="background:#1a3a5c;color:white;">
-                <td style="padding:6px;text-align:center;">工序號</td>
-                <td style="padding:6px;text-align:center;">製程代號</td>
-                <td style="padding:6px;text-align:center;">工序名稱</td>
-                <td style="padding:6px;text-align:center;">SOP</td>
-                <td style="padding:6px;text-align:center;">SIP</td>
-                <td style="padding:6px;text-align:center;">操作</td>
-            </tr>
-        </table>
-        <div style="margin-top:10px;">
-            <button class="btn-save" onclick="openAddProcessToProduct()">＋ 新增工序</button>
+    <div class="modal-box" style="width:620px;max-height:80vh;overflow-y:auto;">
+        <div class="modal-header"><h3>品號詳細</h3><button class="modal-close-btn" onclick="closeProductDetail()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>品號</label><input type="text" id="detailProductNo" readonly /></div>
+            <div class="form-group"><label>產品圖片</label><div id="detailProductImage"></div><input type="file" id="updateProductImage" accept="image/*" /></div>
+            <hr style="border-color:rgba(51,65,85,0.5);margin:12px 0;">
+            <strong style="color:#93c5fd;">工序列表</strong>
+            <table style="width:100%;border-collapse:collapse;margin-top:10px;" id="detailProcessTable">
+                <tr><td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序號</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">製程代號</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序名稱</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">SOP</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">SIP</td>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">操作</td></tr>
+            </table>
+            <div style="margin-top:10px;">
+                <button class="btn-save" onclick="openAddProcessToProduct()">＋ 新增工序</button>
+            </div>
         </div>
         <div class="modal-buttons">
             <button class="btn-delete" onclick="deleteProduct()">刪除品號</button>
@@ -318,21 +262,14 @@
     </div>
 </div>
 
-<!-- 新增/編輯工序彈出視窗 -->
+<!-- 新增/編輯工序 Modal -->
 <div class="modal" id="processModal">
     <div class="modal-box" style="width:400px;">
-        <h3 id="processModalTitle">新增工序</h3>
-        <div class="form-group">
-            <label>工序號</label>
-            <input type="text" id="processModalNo" placeholder="例如：0010" />
-        </div>
-        <div class="form-group">
-            <label>製程代號</label>
-            <input type="text" id="processModalCode" placeholder="例如：EH21" />
-        </div>
-        <div class="form-group">
-            <label>工序名稱</label>
-            <input type="text" id="processModalName" placeholder="例如：組裝" />
+        <div class="modal-header"><h3 id="processModalTitle">新增工序</h3><button class="modal-close-btn" onclick="closeProcessModal()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>工序號</label><input type="text" id="processModalNo" placeholder="例如：0010" /></div>
+            <div class="form-group"><label>製程代號</label><input type="text" id="processModalCode" placeholder="例如：EH21" /></div>
+            <div class="form-group"><label>工序名稱</label><input type="text" id="processModalName" placeholder="例如：組裝" /></div>
         </div>
         <div class="modal-buttons">
             <button class="btn-save" onclick="saveProcessModal()">儲存</button>
@@ -341,68 +278,23 @@
     </div>
 </div>
 
-<!-- 新增員工彈出視窗 -->
+<!-- 新增員工 Modal -->
 <div class="modal" id="addEmployeeModal">
     <div class="modal-box" style="width:500px;max-height:80vh;overflow-y:auto;">
-        <h3>新增員工</h3>
-        <div class="form-group">
-            <label>員工編號</label>
-            <input type="text" id="newEmpNo" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>姓名</label>
-            <input type="text" id="newEmpName" placeholder="請輸入姓名" />
-        </div>
-        <div class="form-group">
-            <label>性別</label>
-            <select id="newEmpGender">
-                <option value="">--選擇--</option>
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>職位</label>
-            <select id="newEmpPosition">
-                <option value="">--選擇--</option>
-                <option value="作業員">作業員</option>
-                <option value="組長">組長</option>
-                <option value="管理員">管理員</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>部門</label>
-            <select id="newEmpDept">
-                <option value="">--選擇部門--</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>到職日期</label>
-            <input type="text" id="newEmpHireDate" placeholder="例如：20260101" />
-        </div>
-        <div class="form-group">
-            <label>電話</label>
-            <input type="text" id="newEmpPhone" placeholder="請輸入電話" />
-        </div>
-        <div class="form-group">
-            <label>身分證號</label>
-            <input type="text" id="newEmpIdNumber" placeholder="請輸入身分證號" />
-        </div>
-        <div class="form-group">
-            <label>緊急聯絡人</label>
-            <input type="text" id="newEmpEmergencyContact" placeholder="請輸入緊急聯絡人" />
-        </div>
-        <div class="form-group">
-            <label>緊急聯絡電話</label>
-            <input type="text" id="newEmpEmergencyPhone" placeholder="請輸入緊急聯絡電話" />
-        </div>
-        <div class="form-group">
-            <label>緊急聯絡關係</label>
-            <input type="text" id="newEmpEmergencyRelation" placeholder="例如：父母、配偶" />
-        </div>
-        <div class="form-group">
-            <label>照片</label>
-            <input type="file" id="newEmpPhoto" accept="image/*" />
+        <div class="modal-header"><h3>新增員工</h3><button class="modal-close-btn" onclick="closeAddEmployee()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>員工編號</label><input type="text" id="newEmpNo" readonly /></div>
+            <div class="form-group"><label>姓名</label><input type="text" id="newEmpName" placeholder="請輸入姓名" /></div>
+            <div class="form-group"><label>性別</label><select id="newEmpGender"><option value="">--選擇--</option><option value="男">男</option><option value="女">女</option></select></div>
+            <div class="form-group"><label>職位</label><select id="newEmpPosition"><option value="">--選擇--</option><option value="作業員">作業員</option><option value="組長">組長</option><option value="管理員">管理員</option></select></div>
+            <div class="form-group"><label>部門</label><select id="newEmpDept"><option value="">--選擇部門--</option></select></div>
+            <div class="form-group"><label>到職日期</label><input type="text" id="newEmpHireDate" placeholder="例如：20260101" /></div>
+            <div class="form-group"><label>電話</label><input type="text" id="newEmpPhone" /></div>
+            <div class="form-group"><label>身分證號</label><input type="text" id="newEmpIdNumber" /></div>
+            <div class="form-group"><label>緊急聯絡人</label><input type="text" id="newEmpEmergencyContact" /></div>
+            <div class="form-group"><label>緊急聯絡電話</label><input type="text" id="newEmpEmergencyPhone" /></div>
+            <div class="form-group"><label>緊急聯絡關係</label><input type="text" id="newEmpEmergencyRelation" /></div>
+            <div class="form-group"><label>照片</label><input type="file" id="newEmpPhoto" accept="image/*" /></div>
         </div>
         <div class="modal-buttons">
             <button class="btn-save" onclick="saveNewEmployee()">儲存</button>
@@ -411,73 +303,47 @@
     </div>
 </div>
 
-<!-- 編輯員工彈出視窗 -->
+<!-- 編輯員工 Modal -->
 <div class="modal" id="editEmployeeModal">
     <div class="modal-box" style="width:500px;max-height:80vh;overflow-y:auto;">
-        <h3>編輯員工資料</h3>
-        <div class="form-group">
-            <label>員工編號</label>
-            <input type="text" id="editEmpNo" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>姓名</label>
-            <input type="text" id="editEmpName" />
-        </div>
-        <div class="form-group">
-            <label>性別</label>
-            <select id="editEmpGender">
-                <option value="">--選擇--</option>
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>職位</label>
-            <select id="editEmpPosition">
-                <option value="">--選擇--</option>
-                <option value="作業員">作業員</option>
-                <option value="組長">組長</option>
-                <option value="管理員">管理員</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>部門</label>
-            <select id="editEmpDept">
-                <option value="">--選擇部門--</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>到職日期</label>
-            <input type="text" id="editEmpHireDate" placeholder="例如：20260101" />
-        </div>
-        <div class="form-group">
-            <label>電話</label>
-            <input type="text" id="editEmpPhone" />
-        </div>
-        <div class="form-group">
-            <label>身分證號</label>
-            <input type="text" id="editEmpIdNumber" />
-        </div>
-        <div class="form-group">
-            <label>緊急聯絡人</label>
-            <input type="text" id="editEmpEmergencyContact" />
-        </div>
-        <div class="form-group">
-            <label>緊急聯絡電話</label>
-            <input type="text" id="editEmpEmergencyPhone" />
-        </div>
-        <div class="form-group">
-            <label>緊急聯絡關係</label>
-            <input type="text" id="editEmpEmergencyRelation" placeholder="例如：父母、配偶" />
-        </div>
-        <div class="form-group">
-            <label>照片</label>
-            <div id="editEmpPhotoPreview"></div>
-            <input type="file" id="editEmpPhoto" accept="image/*" />
+        <div class="modal-header"><h3>編輯員工資料</h3><button class="modal-close-btn" onclick="closeEditEmployee()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>員工編號</label><input type="text" id="editEmpNo" readonly /></div>
+            <div class="form-group"><label>姓名</label><input type="text" id="editEmpName" /></div>
+            <div class="form-group"><label>性別</label><select id="editEmpGender"><option value="">--選擇--</option><option value="男">男</option><option value="女">女</option></select></div>
+            <div class="form-group"><label>職位</label><select id="editEmpPosition"><option value="">--選擇--</option><option value="作業員">作業員</option><option value="組長">組長</option><option value="管理員">管理員</option></select></div>
+            <div class="form-group"><label>部門</label><select id="editEmpDept"><option value="">--選擇部門--</option></select></div>
+            <div class="form-group"><label>到職日期</label><input type="text" id="editEmpHireDate" /></div>
+            <div class="form-group"><label>電話</label><input type="text" id="editEmpPhone" /></div>
+            <div class="form-group"><label>身分證號</label><input type="text" id="editEmpIdNumber" /></div>
+            <div class="form-group"><label>緊急聯絡人</label><input type="text" id="editEmpEmergencyContact" /></div>
+            <div class="form-group"><label>緊急聯絡電話</label><input type="text" id="editEmpEmergencyPhone" /></div>
+            <div class="form-group"><label>緊急聯絡關係</label><input type="text" id="editEmpEmergencyRelation" /></div>
+            <div class="form-group"><label>照片</label><div id="editEmpPhotoPreview"></div><input type="file" id="editEmpPhoto" accept="image/*" /></div>
         </div>
         <div class="modal-buttons">
             <button class="btn-save" onclick="saveEditEmployee()">儲存</button>
             <button class="btn-cancel" onclick="closeEditEmployee()">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增機台 Modal -->
+<div class="modal" id="addMachineModal">
+    <div class="modal-box" style="width:400px;">
+        <div class="modal-header"><h3 id="machineModalTitle">新增機台</h3><button class="modal-close-btn" onclick="closeAddMachine()">✕</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label>機台編號</label><input type="text" id="machineCode" placeholder="例如：s1-1" /></div>
+            <div class="form-group"><label>機台類型</label><input type="text" id="machineType" placeholder="例如：沖床" /></div>
+            <div class="form-group">
+                <label>製程類型</label>
+                <input type="text" id="machineProcessType" placeholder="例如：EH" style="text-transform:uppercase;" />
+            </div>
+            <p style="font-size:11px;color:#64748b;margin-left:90px;">取製程代號前兩碼，例如 EH21 → EH</p>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-save" onclick="saveMachine()">儲存</button>
+            <button class="btn-cancel" onclick="closeAddMachine()">取消</button>
         </div>
     </div>
 </div>

@@ -3,48 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <title>現場製令SOP查詢</title>
-    <link rel="stylesheet" href="/css/sop.css?v=2">
+    <link rel="stylesheet" href="/css/sop.css?v=3">
 </head>
 <body>
 
-<!-- 導覽列 -->
-<div class="sop-nav">
-    <a href="/index.html">⬅ 回首頁</a>
-</div>
+<div class="container">
+    <div class="grid-background"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
 
-<!-- 備註區 -->
-<div class="notice">
-    <div class="notice-title">備註：</div>
-    <div class="notice-content">
-        1.本程式的查詢以「製令製程」為主要查詢內容<br>
-        2.點擊 <span class="highlight">SOP</span> 或 <span class="highlight">SIP</span> 按鈕可查閱對應文件
-    </div>
-</div>
-
-<!-- 查詢列 -->
-<div class="search-bar">
-    <button id="btnModeOrder" onclick="switchMode('order')" style="background:#336699;color:white;border:1px solid #aaa;">製令查詢</button>
-    <button id="btnModeProduct" onclick="switchMode('product')" style="background:#e0e0e0;color:#333;border:1px solid #aaa;">品號查詢</button>
-    <span style="margin:0 8px;">|</span>
-
-    <div id="modeOrder" style="display:flex;align-items:center;gap:6px;">
-        <label>查詢製令：</label>
-        <input type="text" id="orderInput1" maxlength="10" />
-        <span>－</span>
-        <input type="text" id="orderInput2" maxlength="10" />
-        <span id="orderProductNo" style="color:#336699;font-weight:bold;margin-left:8px;"></span>
-        <button onclick="search()">查　詢</button>
+    <!-- 導覽列 -->
+    <div class="sop-nav">
+        <span class="nav-title">SOP / SIP 查詢</span>
+        <a href="/index.html" class="back-button">← 返回首頁</a>
     </div>
 
-    <div id="modeProduct" style="display:none;align-items:center;gap:6px;">
-        <label>查詢品號：</label>
-        <input type="text" id="productInput" maxlength="20" />
-        <button onclick="searchByProduct()">查　詢</button>
+    <div class="main-content">
+        <!-- 備註區 -->
+        <div class="notice">
+            <div class="notice-title">📋 備註：</div>
+            <div class="notice-content">
+                1. 本程式的查詢以「製令製程」為主要查詢內容<br>
+                2. 點擊 <span class="highlight">SOP</span> 或 <span class="highlight">SIP</span> 按鈕可查閱對應文件
+            </div>
+        </div>
+
+        <!-- 查詢列 -->
+        <div class="search-bar">
+            <div class="mode-btns">
+                <button id="btnModeOrder" class="mode-btn active" onclick="switchMode('order')">製令查詢</button>
+                <button id="btnModeProduct" class="mode-btn" onclick="switchMode('product')">品號查詢</button>
+            </div>
+
+            <div class="search-inputs">
+                <div id="modeOrder" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <label class="input-label">查詢製令：</label>
+                    <input type="text" id="orderInput1" class="form-input" maxlength="10" placeholder="前段" />
+                    <span class="input-sep">－</span>
+                    <input type="text" id="orderInput2" class="form-input" maxlength="10" placeholder="後段" />
+                    <span id="orderProductNo" class="product-no"></span>
+                    <button class="btn-search" onclick="search()">查　詢</button>
+                </div>
+
+                <div id="modeProduct" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <label class="input-label">查詢品號：</label>
+                    <input type="text" id="productInput" class="form-input" maxlength="20" placeholder="請輸入品號" />
+                    <button class="btn-search" onclick="searchByProduct()">查　詢</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 查詢結果 -->
+        <div class="result-area" id="resultArea"></div>
     </div>
 </div>
-
-<!-- 查詢結果 -->
-<div class="result-area" id="resultArea"></div>
 
 <!-- 圖片彈出視窗 -->
 <div class="modal" id="modal">

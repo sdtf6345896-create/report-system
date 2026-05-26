@@ -3,110 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <title>組長後台</title>
-    <link rel="stylesheet" href="/css/leader.css?v=8">
+    <link rel="stylesheet" href="/css/leader.css?v=9">
 </head>
 <body>
-<div class="header">
-    <span id="leaderInfo">載入中...</span>
-    <button class="btn-logout" onclick="logout()">登出</button>
-</div>
-
 <div class="container">
-    <h2 id="deptName">報工紀錄</h2>
+    <div class="grid-background"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
 
-    <div class="filter-bar">
-        <label>生產日期：</label>
-        <input type="text" id="filterDate" placeholder="例如：20260411" />
-        <label>員工：</label>
-        <select id="filterEmployee">
-            <option value="">全部</option>
-        </select>
-        <button onclick="loadReports()">查詢</button>
-        <button onclick="clearFilter()">清除</button>
+    <!-- 頁首 -->
+    <div class="page-header">
+        <div class="header-left">
+            <span class="header-icon">👤</span>
+            <span id="leaderInfo" class="header-info">載入中...</span>
+        </div>
+        <button class="btn-logout" onclick="logout()">登出</button>
     </div>
 
-    <div class="table-wrapper">
-        <table id="reportTable">
-            <tbody id="reportBody">
-            <tr>
-                <td colspan="14" style="text-align:center;">請選擇條件查詢</td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="main-content">
+        <h2 class="dept-title" id="deptName">報工紀錄</h2>
+
+        <!-- 篩選列 -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>生產日期</label>
+                <input type="text" id="filterDate" placeholder="例如：20260411" />
+            </div>
+            <div class="filter-group">
+                <label>員工</label>
+                <select id="filterEmployee">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button class="btn-search" onclick="loadReports()">查詢</button>
+                <button class="btn-clear" onclick="clearFilter()">清除</button>
+            </div>
+        </div>
+
+        <!-- 報工紀錄表格 -->
+        <div class="table-wrapper">
+            <table id="reportTable">
+                <tbody id="reportBody">
+                <tr>
+                    <td colspan="14" style="text-align:center; padding:2rem; color:#64748b;">請選擇條件查詢</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <!-- 編輯彈出視窗 -->
 <div class="modal" id="editModal">
-    <div class="modal-box" style="width:500px;">
-        <h3>編輯報工紀錄</h3>
-        <div class="form-group">
-            <label>生產日期</label>
-            <input type="text" id="editProductionDate" />
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>編輯報工紀錄</h3>
+            <button class="modal-close-btn" onclick="closeModal()">✕</button>
         </div>
-        <div class="form-group">
-            <label>製令</label>
-            <input type="text" id="editWorkOrder1" style="width:80px;" />
-            <span>－</span>
-            <input type="text" id="editWorkOrder2" style="width:120px;" />
-            <button onclick="loadEditProcessList()">載入工序</button>
-        </div>
-        <div class="form-group">
-            <label>工序</label>
-            <select id="editProcess" onchange="onEditProcessChange()">
-                <option value="">--</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>製程代號</label>
-            <input type="text" id="editProcessCode" readonly />
-        </div>
-        <div class="form-group">
-            <label>人時(起)</label>
-            <input type="text" id="editLaborStart" />
-        </div>
-        <div class="form-group">
-            <label>人時(迄)</label>
-            <input type="text" id="editLaborEnd" />
-        </div>
-        <div class="form-group">
-            <label>機台數量</label>
-            <select id="editMachineQty" onchange="onEditMachineQtyChange()">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-            </select>
-        </div>
-        <div id="editMachineArea"></div>
-        <div class="form-group">
-            <label>機時(起)</label>
-            <input type="text" id="editMachineTimeStart" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>機時(迄)</label>
-            <input type="text" id="editMachineTimeEnd" readonly style="background:#e0e0e0;" />
-        </div>
-        <div class="form-group">
-            <label>數量</label>
-            <input type="number" id="editCompletedQty" />
-        </div>
-        <div class="form-group">
-            <label>報廢數量</label>
-            <input type="number" id="editScrapQty" />
-        </div>
-        <div class="form-group">
-            <label>備註</label>
-            <input type="text" id="editRemarks" />
-        </div>
-        <div class="form-group">
-            <label>是否完成</label>
-            <input type="checkbox" id="editIsComplete" />
+        <div class="modal-body">
+            <div class="form-group">
+                <label>生產日期</label>
+                <input type="text" id="editProductionDate" />
+            </div>
+            <div class="form-group">
+                <label>製令</label>
+                <div style="display:flex; gap:6px; align-items:center; flex:1;">
+                    <input type="text" id="editWorkOrder1" style="width:80px;" />
+                    <span style="color:#64748b;">－</span>
+                    <input type="text" id="editWorkOrder2" style="flex:1;" />
+                    <button class="btn-load" onclick="loadEditProcessList()">載入工序</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>工序</label>
+                <select id="editProcess" onchange="onEditProcessChange()">
+                    <option value="">--</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>製程代號</label>
+                <input type="text" id="editProcessCode" readonly />
+            </div>
+            <div class="form-group">
+                <label>人時(起)</label>
+                <input type="text" id="editLaborStart" />
+            </div>
+            <div class="form-group">
+                <label>人時(迄)</label>
+                <input type="text" id="editLaborEnd" />
+            </div>
+            <div class="form-group">
+                <label>機台數量</label>
+                <select id="editMachineQty" onchange="onEditMachineQtyChange()">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            <div id="editMachineArea"></div>
+            <div class="form-group">
+                <label>機時(起)</label>
+                <input type="text" id="editMachineTimeStart" readonly />
+            </div>
+            <div class="form-group">
+                <label>機時(迄)</label>
+                <input type="text" id="editMachineTimeEnd" readonly />
+            </div>
+            <div class="form-group">
+                <label>數量</label>
+                <input type="number" id="editCompletedQty" />
+            </div>
+            <div class="form-group">
+                <label>報廢數量</label>
+                <input type="number" id="editScrapQty" />
+            </div>
+            <div class="form-group">
+                <label>備註</label>
+                <input type="text" id="editRemarks" />
+            </div>
+            <div class="form-group">
+                <label>是否完成</label>
+                <input type="checkbox" id="editIsComplete" />
+            </div>
         </div>
         <div class="modal-buttons">
-            <button class="btn-delete" onclick="deleteReport()">刪除此報工</button>
+            <button class="btn-delete" onclick="deleteReport()">刪除</button>
             <button class="btn-save" onclick="saveEdit()">儲存</button>
             <button class="btn-cancel" onclick="closeModal()">取消</button>
         </div>

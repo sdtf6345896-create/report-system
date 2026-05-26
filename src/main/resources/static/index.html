@@ -2,18 +2,114 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>工廠管理系統</title>
     <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
 <div class="container">
-    <h1>工廠管理系統</h1>
-    <div class="btn-group">
-        <a class="btn btn-report" href="/report.html">報工系統</a>
-        <a class="btn btn-sop" href="/sop.html">SOP / SIP 查詢</a>
-        <a class="btn btn-admin" href="/login.html">管理系統</a>
+    <div class="grid-background"></div>
+    <div id="particles"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+
+    <div class="time-display">
+        <div class="time-clock" id="clock">00:00:00</div>
+        <div class="time-date">
+            <span id="date">2024.05.25</span>
+            <span class="time-dot"></span>
+            <span id="weekday">週日</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="title-wrapper">
+                <div class="title-line title-line-1"></div>
+                <div class="title-content">
+                    <h1 class="main-title">工廠管理系統</h1>
+                    <p class="subtitle">FACTORY MANAGEMENT SYSTEM</p>
+                    <svg class="sparkle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                    </svg>
+                </div>
+                <div class="title-line title-line-2"></div>
+            </div>
+        </div>
+
+        <div class="button-grid">
+            <a class="system-button btn-blue" href="/report.html">
+                <div class="button-overlay"></div>
+                <div class="button-glow"></div>
+                <div class="button-shine"></div>
+                <div class="button-content">
+                    <div class="button-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                    </div>
+                    <h3 class="button-title">報工系統</h3>
+                    <p class="button-desc">生產進度工時登記</p>
+                </div>
+                <div class="button-corner"></div>
+                <div class="button-dot"></div>
+            </a>
+
+            <a class="system-button btn-green" href="/sop.html">
+                <div class="button-overlay"></div>
+                <div class="button-glow"></div>
+                <div class="button-shine"></div>
+                <div class="button-content">
+                    <div class="button-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="button-title">SOP / SIP 查詢</h3>
+                    <p class="button-desc">標準作業文件查閱</p>
+                </div>
+                <div class="button-corner"></div>
+                <div class="button-dot"></div>
+            </a>
+
+            <a class="system-button btn-gray" href="/login.html">
+                <div class="button-overlay"></div>
+                <div class="button-glow"></div>
+                <div class="button-shine"></div>
+                <div class="button-content">
+                    <div class="button-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="button-title">管理系統</h3>
+                    <p class="button-desc">權限與資料維護</p>
+                </div>
+                <div class="button-corner"></div>
+                <div class="button-dot"></div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <div class="footer-content">
+                <div class="status-indicator">
+                    <div class="status-dot">
+                        <div class="status-dot-inner"></div>
+                        <div class="status-dot-ping"></div>
+                    </div>
+                    <span style="color: #94a3b8;">系統運行中</span>
+                </div>
+                <span class="footer-dot"></span>
+                <span>© 2026 工廠管理系統</span>
+                <span class="footer-dot"></span>
+                <span style="color: #475569;">v1.0.0</span>
+            </div>
+        </div>
     </div>
 </div>
-<script src="/js/index.js"></script>
+
+<script src="/js/indextime.js"></script>
 </body>
 </html>

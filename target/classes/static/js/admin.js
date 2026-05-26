@@ -1,4 +1,5 @@
 let currentEditId = null;
+let currentMachineId = null;
 
 document.addEventListener('DOMContentLoaded', function () {
     checkLogin();
@@ -22,10 +23,9 @@ function checkLogin() {
 }
 
 function switchTab(tab, btn) {
-    document.getElementById('tab-report').style.display = 'none';
-    document.getElementById('tab-hours').style.display = 'none';
-    document.getElementById('tab-master').style.display = 'none';
-    document.getElementById('tab-employee').style.display = 'none';
+    ['report', 'hours', 'master', 'employee', 'machine'].forEach(t => {
+        document.getElementById('tab-' + t).style.display = 'none';
+    });
     document.getElementById('tab-' + tab).style.display = 'block';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
@@ -45,7 +45,145 @@ function switchTab(tab, btn) {
                 });
             });
     }
+    if (tab === 'machine') {
+        loadMachineList();
+    }
 }
+
+// ===================== 機台管理 =====================
+
+function loadMachineList() {
+    const processType = document.getElementById('filterMachineType').value.trim().toUpperCase();
+    let url = '/api/machine/list';
+    if (processType) url += '?processType=' + processType;
+
+    fetch(url, { credentials: 'include' })
+        .then(res => res.json())
+        .then(list => {
+            const tbody = document.getElementById('machineBody');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">查無機台資料</td></tr>';
+                return;
+            }
+
+            // 依 machineType 分組
+            const grouped = {};
+            list.forEach(m => {
+                const type = m.machineType || '未分類';
+                if (!grouped[type]) grouped[type] = [];
+                grouped[type].push(m);
+            });
+
+            Object.keys(grouped).forEach(typeName => {
+                // 群組標題列
+                const titleRow = document.createElement('tr');
+                titleRow.className = 'date-header';
+                titleRow.innerHTML = `<td colspan="4">${typeName}</td>`;
+                tbody.appendChild(titleRow);
+
+                // 子表頭
+                const headerRow = document.createElement('tr');
+                headerRow.className = 'sub-header';
+                headerRow.innerHTML = '<td>機台類型</td><td>機台編號</td><td>製程類型</td><td>操作</td>';
+                tbody.appendChild(headerRow);
+
+                // 資料列
+                grouped[typeName].forEach(m => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${m.machineType || ''}</td>
+                        <td>${m.machineCode || ''}</td>
+                        <td>${m.processType || ''}</td>
+                        <td>
+                            <button class="btn-edit" style="font-size:12px;padding:3px 8px;margin-right:4px;"
+                                onclick="openEditMachine(${JSON.stringify(m).replace(/"/g, '&quot;')})">編輯</button>
+                            <button class="btn-delete" style="font-size:12px;padding:3px 8px;"
+                                onclick="deleteMachine(${m.id})">刪除</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        });
+}
+
+function clearMachineFilter() {
+    document.getElementById('filterMachineType').value = '';
+    loadMachineList();
+}
+
+function openAddMachine() {
+    currentMachineId = null;
+    document.getElementById('machineModalTitle').innerText = '新增機台';
+    document.getElementById('machineCode').value = '';
+    document.getElementById('machineType').value = '';
+    document.getElementById('machineProcessType').value = '';
+    document.getElementById('addMachineModal').classList.add('show');
+}
+
+function openEditMachine(m) {
+    currentMachineId = m.id;
+    document.getElementById('machineModalTitle').innerText = '編輯機台';
+    document.getElementById('machineCode').value = m.machineCode || '';
+    document.getElementById('machineType').value = m.machineType || '';
+    document.getElementById('machineProcessType').value = m.processType || '';
+    document.getElementById('addMachineModal').classList.add('show');
+}
+
+function closeAddMachine() {
+    document.getElementById('addMachineModal').classList.remove('show');
+    currentMachineId = null;
+}
+
+function saveMachine() {
+    const machineCode = document.getElementById('machineCode').value.trim();
+    const machineType = document.getElementById('machineType').value.trim();
+    const processType = document.getElementById('machineProcessType').value.trim().toUpperCase();
+
+    if (!machineCode) { alert('請輸入機台編號！'); return; }
+    if (!processType) { alert('請輸入製程類型！'); return; }
+
+    const body = { machineCode, machineType, processType };
+    const isEdit = currentMachineId !== null;
+    const url = isEdit ? '/api/machine/' + currentMachineId : '/api/machine/save';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
+    })
+        .then(res => {
+            if (res.ok) {
+                alert(isEdit ? '修改成功！' : '新增成功！');
+                closeAddMachine();
+                loadMachineList();
+            } else {
+                alert(isEdit ? '修改失敗！' : '新增失敗！');
+            }
+        });
+}
+
+function deleteMachine(id) {
+    if (!confirm('確定要刪除此機台嗎？')) return;
+    fetch('/api/machine/' + id, {
+        method: 'DELETE',
+        credentials: 'include'
+    })
+        .then(res => {
+            if (res.ok) {
+                alert('刪除成功！');
+                loadMachineList();
+            } else {
+                alert('刪除失敗！');
+            }
+        });
+}
+
+// ===================== 以下原本的 JS，格式完整保留 =====================
 
 function toggleHoursFilter() {
     const type = document.getElementById('hoursType').value;
@@ -120,7 +258,7 @@ function loadReports() {
             sortedDates.forEach(date => {
                 if (tbody.children.length > 0) {
                     const spaceRow = document.createElement('tr');
-                    spaceRow.innerHTML = '<td colspan="15" style="height:15px;background:#f5f5f5;border:none;"></td>';
+                    spaceRow.innerHTML = '<td colspan="15" style="height:8px;background:transparent;border:none;"></td>';
                     tbody.appendChild(spaceRow);
                 }
 
@@ -555,19 +693,18 @@ function saveEdit() {
         }
         for (let i = 1; i <= qty; i++) {
             const mc = document.getElementById('editMachineCode' + i);
-            if (mc && !mc.value) {
-                alert('請選擇機台！'); return;
-            }
+            if (mc && !mc.value) { alert('請選擇機台！'); return; }
         }
     }
+
     const machines = [];
     for (let i = 1; i <= qty; i++) {
         const mc = document.getElementById('editMachineCode' + i);
         if (mc && mc.value) {
             machines.push({
                 machineCode: mc.value,
-                machineTimeStart: document.getElementById('editMachineTimeStart').value,
-                machineTimeEnd: document.getElementById('editMachineTimeEnd').value
+                machineTimeStart: machineTimeStart,
+                machineTimeEnd: machineTimeEnd
             });
         }
     }
@@ -578,10 +715,10 @@ function saveEdit() {
         productNo: window._editProductNo || '',
         process: document.getElementById('editProcess').value,
         machineCode: machines.length > 0 ? machines[0].machineCode : '',
-        laborTimeStart: document.getElementById('editLaborStart').value,
-        laborTimeEnd: document.getElementById('editLaborEnd').value,
-        machineTimeStart: document.getElementById('editMachineTimeStart').value,
-        machineTimeEnd: document.getElementById('editMachineTimeEnd').value,
+        laborTimeStart: laborStart,
+        laborTimeEnd: laborEnd,
+        machineTimeStart: machineTimeStart,
+        machineTimeEnd: machineTimeEnd,
         completedQty: document.getElementById('editCompletedQty').value !== '' ? parseInt(document.getElementById('editCompletedQty').value) : null,
         scrapQty: document.getElementById('editScrapQty').value !== '' ? parseInt(document.getElementById('editScrapQty').value) : null,
         remarks: document.getElementById('editRemarks').value,
@@ -727,7 +864,6 @@ function closeAddProduct() {
 function addProcessRow() {
     const table = document.getElementById('addProcessTable');
     const row = table.insertRow();
-    const idx = table.rows.length - 1;
     row.innerHTML = `
         <td><input type="text" placeholder="0010" style="width:70px;" /></td>
         <td><input type="text" placeholder="EH21" style="width:70px;" /></td>
@@ -868,7 +1004,6 @@ function openProductDetail(productNo) {
                     </td>
                 `;
 
-                // 查詢已上傳的圖片
                 fetch('/api/document/' + productNo + '/' + p.processNo)
                     .then(res => res.json())
                     .then(docs => {
@@ -981,7 +1116,6 @@ function openAddEmployee() {
     fetch('/api/admin/employees', { credentials: 'include' })
         .then(res => res.json())
         .then(emps => {
-            // 找最大編號+1
             let maxNo = 0;
             emps.forEach(e => {
                 const no = parseInt(e.employeeNo);
@@ -1005,7 +1139,6 @@ function openAddEmployee() {
         });
 
     document.getElementById('newEmpName').value = '';
-    // 同步部門到篩選下拉
     fetch('/api/admin/departments', { credentials: 'include' })
         .then(res => res.json())
         .then(depts => {
@@ -1031,10 +1164,12 @@ function saveNewEmployee() {
     const deptId = document.getElementById('newEmpDept').value;
     const hireDate = document.getElementById('newEmpHireDate').value.trim();
     const gender = document.getElementById('newEmpGender').value;
-    const position = document.getElementById('newEmpPosition').value;
+    const position = document.getElementById('newEmpPosition').value.trim();
     const phone = document.getElementById('newEmpPhone').value.trim();
     const idNumber = document.getElementById('newEmpIdNumber').value.trim();
     const emergencyContact = document.getElementById('newEmpEmergencyContact').value.trim();
+    const emergencyPhone = document.getElementById('newEmpEmergencyPhone').value.trim();
+    const emergencyRelation = document.getElementById('newEmpEmergencyRelation').value.trim();
     const photoFile = document.getElementById('newEmpPhoto').files[0];
 
     if (!empName) { alert('請輸入姓名！'); return; }
@@ -1055,6 +1190,8 @@ function saveNewEmployee() {
                 phone,
                 idNumber,
                 emergencyContact,
+                emergencyPhone,
+                emergencyRelation,
                 photo: photoPath || ''
             })
         }).then(res => {
@@ -1113,7 +1250,6 @@ function openAddProcessToProduct() {
     document.getElementById('processModalCode').value = '';
     document.getElementById('processModalName').value = '';
     document.getElementById('processModalNo').readOnly = false;
-    document.getElementById('processModalNo').style.background = '';
     document.getElementById('processModal').classList.add('show');
 }
 
@@ -1126,7 +1262,6 @@ function openEditProcess(productNo, processNo, processCode, processName) {
     document.getElementById('processModalCode').value = processCode;
     document.getElementById('processModalName').value = processName;
     document.getElementById('processModalNo').readOnly = false;
-    document.getElementById('processModalNo').style.background = '';
     document.getElementById('processModal').classList.add('show');
 }
 

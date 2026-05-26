@@ -1,351 +1,291 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    font-family: "Microsoft JhengHei", "微軟正黑體", Arial, sans-serif;
-    background-color: #d0d0d0;
+    font-family: "Microsoft JhengHei", "微軟正黑體", -apple-system, sans-serif;
     min-height: 100vh;
-    padding: 15px;
+    background: linear-gradient(to bottom right, #020617, #0f172a, #020617);
+    color: #cbd5e1;
 }
 
-.page-wrapper {
-    max-width: 750px;
-    margin: 0 auto;
+.container {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
+
+/* 背景裝飾 */
+.grid-background {
+    position: fixed;
+    inset: 0;
+    background-image:
+            linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.glow { position: fixed; border-radius: 50%; filter: blur(60px); pointer-events: none; z-index: 0; }
+.glow-1 { top: 20%; left: 20%; width: 400px; height: 400px; background: rgba(6,182,212,0.08); animation: pulse-glow 6s ease-in-out infinite; }
+.glow-2 { bottom: 20%; right: 20%; width: 400px; height: 400px; background: rgba(59,130,246,0.08); animation: pulse-glow 6s ease-in-out infinite 2s; }
 
 /* 頁首 */
 .page-header {
-    background-color: #c0c0c0;
-    border: 1px solid #999;
-    padding: 6px 10px;
+    position: relative;
+    z-index: 10;
+    background: rgba(30,41,59,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(6,182,212,0.2);
+    padding: 1rem 1.5rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    justify-content: space-between;
 }
 
-.page-header .title {
-    font-size: 15px;
-    font-weight: bold;
-    color: #000;
+.header-left { display: flex; align-items: baseline; gap: 12px; }
+.title { font-size: 1.1rem; font-weight: 600; color: #22d3ee; }
+.subtitle { font-size: 0.8rem; color: #64748b; }
+.btn-home { color: #67e8f9; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+.btn-home:hover { color: #a5f3fc; }
+
+/* 主內容  */
+.main-content {
+    position: relative;
+    z-index: 1;
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.page-header .subtitle {
-    font-size: 12px;
-    color: #333;
+.form-wrapper {
+    max-width: 900px;
+    margin: 0 auto 1.5rem;
 }
 
-/* 主要表單區域 */
+/* 表單區塊 */
 .form-section {
-    border: 2px solid #888;
-    background-color: #e0e0e0;
+    background: rgba(30,41,59,0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
 }
 
 .section-title {
-    background-color: #a0a0a0;
-    border-bottom: 1px solid #888;
-    padding: 4px 10px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #000;
+    background: rgba(51,65,85,0.8);
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #22d3ee;
+    border-bottom: 1px solid rgba(6,182,212,0.2);
 }
 
-/* 表格樣式 */
+/* 表格 */
 .form-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.form-table tr {
-    border-bottom: 1px solid #b0b0b0;
+.form-table tr { border-bottom: 1px solid rgba(51,65,85,0.5); }
+.form-table tr:last-child { border-bottom: none; }
+.form-table td { padding: 8px 12px; vertical-align: middle; font-size: 13px; }
+
+.label-cell {
+    width: 35%;
+    background: rgba(51,65,85,0.4);
+    border-right: 1px solid rgba(51,65,85,0.6);
 }
 
-.form-table tr:last-child {
-    border-bottom: none;
-}
+.input-cell { background: transparent; }
 
-.form-table td {
-    padding: 5px 8px;
-    vertical-align: middle;
-    font-size: 13px;
-}
-
-.form-table td.label-cell {
-    width: 38%;
-    background-color: #c8c8c8;
-    border-right: 1px solid #b0b0b0;
-}
-
-.form-table td.input-cell {
-    background-color: #e8e8e8;
-}
-
-.label-zh {
-    display: block;
-    font-weight: bold;
-    font-size: 13px;
-    color: #000;
-}
-
-.label-en {
-    display: block;
-    font-size: 11px;
-    color: #555;
-}
+.label-zh { display: block; font-weight: 500; font-size: 13px; color: #e2e8f0; }
+.label-en { display: block; font-size: 11px; color: #64748b; margin-top: 1px; }
 
 /* 輸入框 */
 input[type="text"],
 input[type="date"],
 select,
 textarea {
-    border: 1px solid #888;
-    background-color: white;
-    padding: 2px 5px;
+    border: 1px solid #334155;
+    background: rgba(51,65,85,0.5);
+    color: #e2e8f0;
+    padding: 4px 8px;
     font-size: 13px;
     font-family: "Microsoft JhengHei", Arial, sans-serif;
     outline: none;
+    border-radius: 4px;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input[type="text"]:focus,
-input[type="date"]:focus,
 select:focus,
 textarea:focus {
-    border-color: #0055bb;
-    background-color: #fffff0;
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 2px rgba(6,182,212,0.15);
+    background: rgba(51,65,85,0.8);
 }
 
-.input-sm { width: 80px; }
-.input-md { width: 140px; }
-.input-lg { width: 220px; }
-.input-xl { width: 100%; max-width: 300px; }
-
-/* 製令單欄位（多段） */
-.order-group {
-    display: flex;
-    gap: 4px;
-    align-items: center;
+input[readonly] {
+    background: rgba(15,23,42,0.5) !important;
+    color: #64748b;
+    cursor: not-allowed;
 }
 
-.order-group input {
-    width: 65px;
+input::placeholder { color: #475569; }
+select option { background: #1e293b; color: #e2e8f0; }
+
+.input-sm { width: 90px; }
+.input-md { width: 150px; }
+
+.order-group { display: flex; gap: 6px; align-items: center; }
+.order-group input { width: 80px; }
+.order-sep { color: #475569; }
+
+#productNo, #employeeInfo {
+    font-size: 12px;
+    color: #22d3ee;
+    margin-top: 4px;
+    font-weight: 500;
 }
 
-.order-sep {
-    font-size: 13px;
-    color: #555;
+.machine-input {
+    width: 110px;
+    margin-right: 6px;
+    margin-bottom: 6px;
 }
 
-/* 顯示用文字 */
-.display-text {
-    font-size: 13px;
-    color: #000;
-    padding: 2px 4px;
-}
-
-.display-label {
-    font-size: 11px;
-    color: #555;
-    margin-right: 8px;
-}
-
-.info-row {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.info-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-/* 時間欄位並排 */
-.time-pair {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.time-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 13px;
-}
-
-/* 備註 */
 textarea.remarks {
     width: 100%;
-    max-width: 350px;
-    height: 55px;
+    max-width: 380px;
+    height: 60px;
     resize: vertical;
     font-size: 12px;
 }
 
-/* checkbox */
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+.checkbox-group { display: flex; align-items: center; gap: 8px; }
+.checkbox-group input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: #06b6d4; }
+.checkbox-group label { font-size: 13px; color: #cbd5e1; cursor: pointer; }
 
-.checkbox-group input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    cursor: pointer;
-}
-
-.checkbox-group label {
-    font-size: 13px;
-    cursor: pointer;
+.divider-row td {
+    background: rgba(6,182,212,0.08) !important;
+    padding: 5px 12px !important;
+    font-size: 11px;
+    font-weight: 600;
+    color: #22d3ee;
+    border-top: 1px solid rgba(6,182,212,0.15);
+    border-bottom: 1px solid rgba(6,182,212,0.15);
 }
 
 /* 按鈕區 */
 .btn-area {
-    padding: 10px;
-    background-color: #d0d0d0;
-    border-top: 1px solid #aaa;
+    padding: 12px;
+    background: rgba(15,23,42,0.4);
+    border-top: 1px solid rgba(51,65,85,0.5);
     display: flex;
-    gap: 8px;
+    gap: 10px;
     justify-content: center;
 }
 
 .btn {
-    padding: 4px 18px;
+    padding: 6px 24px;
     font-size: 13px;
     font-family: "Microsoft JhengHei", Arial, sans-serif;
-    border: 1px solid #888;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    background-color: #d4d4d4;
-    color: #000;
+    font-weight: 500;
+    transition: all 0.2s;
 }
 
-.btn:hover {
-    background-color: #b8b8b8;
-}
+.btn-primary { background: linear-gradient(to right, #06b6d4, #2563eb); color: white; }
+.btn-primary:hover { background: linear-gradient(to right, #0891b2, #1d4ed8); transform: translateY(-1px); }
+.btn-secondary { background: #334155; color: #cbd5e1; }
+.btn-secondary:hover { background: #475569; }
+.btn-danger { background: #991b1b; color: white; }
+.btn-danger:hover { background: #b91c1c; }
 
-.btn:active {
-    background-color: #a0a0a0;
-}
-
-.btn-primary {
-    background-color: #c0d0f0;
-    border-color: #6080c0;
-}
-
-.btn-primary:hover {
-    background-color: #a8beee;
-}
-
-/* 分隔線 */
-.divider-row td {
-    background-color: #b8b8b8 !important;
-    padding: 2px 8px !important;
-    font-size: 11px;
-    font-weight: bold;
-    color: #333;
-}
-
-/* 數量資訊顯示區 */
-.qty-display {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.qty-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.qty-label {
-    font-size: 11px;
-    color: #444;
-}
-
-.qty-value {
-    font-size: 13px;
-    font-weight: bold;
-    color: #000;
-    min-width: 40px;
-    text-align: right;
-}
-
-
-/* 員工資訊顯示 */
-#employeeInfo {
-    font-size: 12px;
-    color: #555;
-    margin-top: 3px;
-}
-
-/* 品號顯示 */
-#productNo {
-    font-size: 12px;
-    color: #555;
-    margin-top: 3px;
-}
-
-/* 製令單第二段輸入框 */
-#workOrder2 {
-    width: 107px;
-}
-
-/* 製令工序下拉與輸入框 */
-#process {
-    width: 80px;
-}
-
-#processInput {
-    width: 80px;
-}
-
-/* 機台數量下拉 */
-#machineQty {
-    width: 80px;
-}
-
-/* 機台代號動態輸入框 */
-.machine-input {
-    width: 100px;
-    margin-right: 5px;
-    margin-bottom: 6px;
-}
-
-/* 當日報工紀錄區塊 */
-#reportList tr:first-child {
-    background-color: #b8b8b8;
-}
-
-/* 當日報工區塊間距 */
+/* =====================
+   當日報工紀錄
+   撐滿全寬、不捲動
+   ===================== */
 .report-section {
-    margin-top: 10px;
+    background: rgba(30,41,59,0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(6,182,212,0.2);
+    border-radius: 0.75rem;
+    overflow: hidden;
 }
 
-/* 當日報工紀錄表格 */
 .report-table {
-    font-size: 12px;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;   /* 關鍵：固定欄寬，不超出容器 */
+    font-size: 11px;
 }
+
+/* 各欄寬度分配（15欄，total=100%） */
+.report-table td:nth-child(1)  { width: 7%; }   /* 生產日期 */
+.report-table td:nth-child(2)  { width: 5%; }   /* 工號 */
+.report-table td:nth-child(3)  { width: 6%; }   /* 姓名 */
+.report-table td:nth-child(4)  { width: 9%; }   /* 製令 */
+.report-table td:nth-child(5)  { width: 7%; }   /* 製令工序 */
+.report-table td:nth-child(6)  { width: 7%; }   /* 製程代號 */
+.report-table td:nth-child(7)  { width: 6%; }   /* 人時起 */
+.report-table td:nth-child(8)  { width: 6%; }   /* 人時迄 */
+.report-table td:nth-child(9)  { width: 7%; }   /* 機台 */
+.report-table td:nth-child(10) { width: 6%; }   /* 機時起 */
+.report-table td:nth-child(11) { width: 6%; }   /* 機時迄 */
+.report-table td:nth-child(12) { width: 5%; }   /* 數量 */
+.report-table td:nth-child(13) { width: 6%; }   /* 報廢數量 */
+.report-table td:nth-child(14) { width: 10%; }  /* 備註 */
+.report-table td:nth-child(15) { width: 7%; }   /* 操作 */
 
 .report-header td {
-    background-color: #6b1a1a;
-    color: white;
-    font-weight: bold;
+    background: rgba(30,58,138,0.6) !important;
+    color: #93c5fd !important;
+    font-weight: 600;
     text-align: center;
-    padding: 5px 6px !important;
+    padding: 7px 3px !important;
+    border-right: 1px solid rgba(51,65,85,0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-#reportList td {
-    white-space: pre-line;
+#reportList tr:not(.report-header) td {
+    text-align: center;
+    color: #cbd5e1;
+    border-right: 1px solid rgba(51,65,85,0.3);
+    padding: 6px 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-#reportList td:nth-child(7) {
-    min-width: 80px;
-    white-space: pre-line;
+/* 備註欄允許換行 */
+#reportList tr:not(.report-header) td:nth-child(14) {
+    white-space: normal;
+    word-break: break-all;
+}
+
+#reportList tr:not(.report-header):nth-child(even) td {
+    background: rgba(15,23,42,0.3);
+}
+
+#reportList tr:not(.report-header):hover td {
+    background: rgba(6,182,212,0.1);
+    cursor: pointer;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+/* 平板響應式 */
+@media (max-width: 900px) {
+    .main-content { padding: 1rem; }
+    .label-cell { width: 40%; }
+    .report-table { font-size: 10px; }
 }
