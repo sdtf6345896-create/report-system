@@ -46,20 +46,52 @@ function switchTab(tab, btn) {
             });
     }
     if (tab === 'machine') {
+        loadMachineFilters();
         loadMachineList();
     }
 }
 
 // ===================== 機台管理 =====================
 
-function loadMachineList() {
-    const processType = document.getElementById('filterMachineType').value.trim().toUpperCase();
-    let url = '/api/machine/list';
-    if (processType) url += '?processType=' + processType;
-
-    fetch(url, { credentials: 'include' })
+function loadMachineFilters() {
+    fetch('/api/machine/list', { credentials: 'include' })
         .then(res => res.json())
         .then(list => {
+            // 機台類型下拉
+            const typeNames = [...new Set(list.map(m => m.machineType).filter(Boolean))];
+            const typeSelect = document.getElementById('filterMachineTypeName');
+            typeSelect.innerHTML = '<option value="">全部</option>';
+            typeNames.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t;
+                option.innerText = t;
+                typeSelect.appendChild(option);
+            });
+
+            // 製程類型下拉
+            const processTypes = [...new Set(list.map(m => m.processType).filter(Boolean))];
+            const processSelect = document.getElementById('filterMachineType');
+            processSelect.innerHTML = '<option value="">全部</option>';
+            processTypes.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t;
+                option.innerText = t;
+                processSelect.appendChild(option);
+            });
+        });
+}
+
+function loadMachineList() {
+    const typeName = document.getElementById('filterMachineTypeName').value;
+    const processType = document.getElementById('filterMachineType').value;
+
+    fetch('/api/machine/list', { credentials: 'include' })
+        .then(res => res.json())
+        .then(list => {
+            // 前端篩選
+            if (typeName) list = list.filter(m => m.machineType === typeName);
+            if (processType) list = list.filter(m => m.processType === processType);
+
             const tbody = document.getElementById('machineBody');
             tbody.innerHTML = '';
 
@@ -110,6 +142,7 @@ function loadMachineList() {
 }
 
 function clearMachineFilter() {
+    document.getElementById('filterMachineTypeName').value = '';
     document.getElementById('filterMachineType').value = '';
     loadMachineList();
 }
@@ -160,6 +193,7 @@ function saveMachine() {
             if (res.ok) {
                 alert(isEdit ? '修改成功！' : '新增成功！');
                 closeAddMachine();
+                loadMachineFilters();
                 loadMachineList();
             } else {
                 alert(isEdit ? '修改失敗！' : '新增失敗！');
@@ -176,6 +210,7 @@ function deleteMachine(id) {
         .then(res => {
             if (res.ok) {
                 alert('刪除成功！');
+                loadMachineFilters();
                 loadMachineList();
             } else {
                 alert('刪除失敗！');
@@ -1418,7 +1453,7 @@ function saveEditEmployee() {
     if (photoFile) {
         const formData = new FormData();
         formData.append('file', photoFile);
-        formData.append('productNo', 'employee');
+        formData.append('productNo', 'employee');X
         formData.append('processNo', empNo);
         formData.append('docType', 'PHOTO');
         fetch('/api/admin/upload', {

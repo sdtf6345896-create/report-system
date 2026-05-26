@@ -115,8 +115,14 @@
     <!-- 機台管理 -->
     <div id="tab-machine" style="display:none;">
         <div class="filter-bar">
+            <label>機台類型：</label>
+            <select id="filterMachineTypeName">
+                <option value="">全部</option>
+            </select>
             <label>製程類型：</label>
-            <input type="text" id="filterMachineType" placeholder="例如：EH" style="width:80px;" />
+            <select id="filterMachineType">
+                <option value="">全部</option>
+            </select>
             <button onclick="loadMachineList()">查詢</button>
             <button onclick="clearMachineFilter()">清除</button>
             <button class="btn-save" style="margin-left:auto;" onclick="openAddMachine()">＋ 新增機台</button>
