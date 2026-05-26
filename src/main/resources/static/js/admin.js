@@ -53,6 +53,12 @@ function switchTab(tab, btn) {
 
 // ===================== 機台管理 =====================
 
+function toggleMachineFilter() {
+    const type = document.getElementById('machineFilterType').value;
+    document.getElementById('machineTypeFilter').style.display = type === 'type' ? '' : 'none';
+    document.getElementById('machineProcessFilter').style.display = type === 'process' ? '' : 'none';
+}
+
 function loadMachineFilters() {
     fetch('/api/machine/list', { credentials: 'include' })
         .then(res => res.json())
@@ -82,8 +88,9 @@ function loadMachineFilters() {
 }
 
 function loadMachineList() {
-    const typeName = document.getElementById('filterMachineTypeName').value;
-    const processType = document.getElementById('filterMachineType').value;
+    const filterMode = document.getElementById('machineFilterType').value;
+    const typeName = filterMode === 'type' ? document.getElementById('filterMachineTypeName').value : '';
+    const processType = filterMode === 'process' ? document.getElementById('filterMachineType').value : '';
 
     fetch('/api/machine/list', { credentials: 'include' })
         .then(res => res.json())
@@ -144,6 +151,8 @@ function loadMachineList() {
 function clearMachineFilter() {
     document.getElementById('filterMachineTypeName').value = '';
     document.getElementById('filterMachineType').value = '';
+    document.getElementById('machineFilterType').value = 'type';
+    toggleMachineFilter();
     loadMachineList();
 }
 
@@ -218,7 +227,7 @@ function deleteMachine(id) {
         });
 }
 
-// ===================== 以下原本的 JS，格式完整保留 =====================
+// ===================== 以下原本的 JS =====================
 
 function toggleHoursFilter() {
     const type = document.getElementById('hoursType').value;
@@ -1453,7 +1462,7 @@ function saveEditEmployee() {
     if (photoFile) {
         const formData = new FormData();
         formData.append('file', photoFile);
-        formData.append('productNo', 'employee');X
+        formData.append('productNo', 'employee');
         formData.append('processNo', empNo);
         formData.append('docType', 'PHOTO');
         fetch('/api/admin/upload', {

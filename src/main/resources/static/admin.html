@@ -115,14 +115,21 @@
     <!-- 機台管理 -->
     <div id="tab-machine" style="display:none;">
         <div class="filter-bar">
-            <label>選擇機台類型：</label>
-            <select id="filterMachineTypeName">
-                <option value="">全部</option>
+            <label>查詢方式：</label>
+            <select id="machineFilterType" onchange="toggleMachineFilter()">
+                <option value="type">機台類型</option>
+                <option value="process">製程類型</option>
             </select>
-            <label>製程類型：</label>
-            <select id="filterMachineType">
-                <option value="">全部</option>
-            </select>
+            <span id="machineTypeFilter">
+                <select id="filterMachineTypeName">
+                    <option value="">全部</option>
+                </select>
+            </span>
+            <span id="machineProcessFilter" style="display:none;">
+                <select id="filterMachineType">
+                    <option value="">全部</option>
+                </select>
+            </span>
             <button onclick="loadMachineList()">查詢</button>
             <button onclick="clearMachineFilter()">清除</button>
             <button class="btn-save" style="margin-left:auto;" onclick="openAddMachine()">＋ 新增機台</button>
@@ -334,13 +341,13 @@
     </div>
 </div>
 
-<!-- 新增機台 Modal -->
+<!-- 新增/編輯機台 Modal -->
 <div class="modal" id="addMachineModal">
     <div class="modal-box" style="width:400px;">
         <div class="modal-header"><h3 id="machineModalTitle">新增機台</h3><button class="modal-close-btn" onclick="closeAddMachine()">✕</button></div>
         <div class="modal-body">
             <div class="form-group"><label>機台編號</label><input type="text" id="machineCode" placeholder="例如：s1-1" /></div>
-            <div class="form-group"><label>機台類型</label><input type="text" id="machineType" placeholder="例如：沖床" /></div>
+            <div class="form-group"><label>機台類型</label><input type="text" id="machineType" placeholder="例如：5噸機台" /></div>
             <div class="form-group">
                 <label>製程類型</label>
                 <input type="text" id="machineProcessType" placeholder="例如：EH" style="text-transform:uppercase;" />
