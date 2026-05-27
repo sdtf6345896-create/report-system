@@ -46,20 +46,59 @@ function switchTab(tab, btn) {
             });
     }
     if (tab === 'machine') {
+        loadMachineFilters();
         loadMachineList();
     }
 }
 
 // ===================== 機台管理 =====================
 
-function loadMachineList() {
-    const processType = document.getElementById('filterMachineType').value.trim().toUpperCase();
-    let url = '/api/machine/list';
-    if (processType) url += '?processType=' + processType;
+function toggleMachineFilter() {
+    const type = document.getElementById('machineFilterType').value;
+    document.getElementById('machineTypeFilter').style.display = type === 'type' ? '' : 'none';
+    document.getElementById('machineProcessFilter').style.display = type === 'process' ? '' : 'none';
+}
 
-    fetch(url, { credentials: 'include' })
+function loadMachineFilters() {
+    fetch('/api/machine/list', { credentials: 'include' })
         .then(res => res.json())
         .then(list => {
+            // 機台類型下拉
+            const typeNames = [...new Set(list.map(m => m.machineType).filter(Boolean))];
+            const typeSelect = document.getElementById('filterMachineTypeName');
+            typeSelect.innerHTML = '<option value="">全部</option>';
+            typeNames.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t;
+                option.innerText = t;
+                typeSelect.appendChild(option);
+            });
+
+            // 製程類型下拉
+            const processTypes = [...new Set(list.map(m => m.processType).filter(Boolean))];
+            const processSelect = document.getElementById('filterMachineType');
+            processSelect.innerHTML = '<option value="">全部</option>';
+            processTypes.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t;
+                option.innerText = t;
+                processSelect.appendChild(option);
+            });
+        });
+}
+
+function loadMachineList() {
+    const filterMode = document.getElementById('machineFilterType').value;
+    const typeName = filterMode === 'type' ? document.getElementById('filterMachineTypeName').value : '';
+    const processType = filterMode === 'process' ? document.getElementById('filterMachineType').value : '';
+
+    fetch('/api/machine/list', { credentials: 'include' })
+        .then(res => res.json())
+        .then(list => {
+            // 前端篩選
+            if (typeName) list = list.filter(m => m.machineType === typeName);
+            if (processType) list = list.filter(m => m.processType === processType);
+
             const tbody = document.getElementById('machineBody');
             tbody.innerHTML = '';
 
@@ -110,7 +149,10 @@ function loadMachineList() {
 }
 
 function clearMachineFilter() {
+    document.getElementById('filterMachineTypeName').value = '';
     document.getElementById('filterMachineType').value = '';
+    document.getElementById('machineFilterType').value = 'type';
+    toggleMachineFilter();
     loadMachineList();
 }
 
@@ -160,6 +202,7 @@ function saveMachine() {
             if (res.ok) {
                 alert(isEdit ? '修改成功！' : '新增成功！');
                 closeAddMachine();
+                loadMachineFilters();
                 loadMachineList();
             } else {
                 alert(isEdit ? '修改失敗！' : '新增失敗！');
@@ -176,6 +219,7 @@ function deleteMachine(id) {
         .then(res => {
             if (res.ok) {
                 alert('刪除成功！');
+                loadMachineFilters();
                 loadMachineList();
             } else {
                 alert('刪除失敗！');
@@ -183,7 +227,7 @@ function deleteMachine(id) {
         });
 }
 
-// ===================== 以下原本的 JS，格式完整保留 =====================
+// ===================== 以下原本的 JS =====================
 
 function toggleHoursFilter() {
     const type = document.getElementById('hoursType').value;
@@ -976,10 +1020,55 @@ function deleteOrder(id) {
     });
 }
 
+function saveProductImage() {
+    const productNo = document.getElementById('detailProductNo').value;
+    const file = document.getElementById('updateProductImage').files[0];
+    if (!file) { alert('請先選擇圖片！'); return; }
+    uploadDoc(productNo, 'product', 'IMG', document.getElementById('updateProductImage'));
+}
+
+function deleteProductImage() {
+    const productNo = document.getElementById('detailProductNo').value;
+    if (!confirm('確定要刪除此品號圖片嗎？')) return;
+
+    fetch('/api/document/' + productNo)
+        .then(res => res.json())
+        .then(docs => {
+            const imgDoc = docs.find(d => d.docType === 'IMG' && d.processNo === 'product');
+            if (!imgDoc) { alert('沒有圖片可刪除！'); return; }
+
+            // 刪除後端文件紀錄（需要後端支援）
+            // 這裡先清除前端顯示
+            document.getElementById('detailProductImage').innerHTML = '';
+            document.getElementById('updateProductImage').value = '';
+            alert('圖片已移除！');
+        });
+}
+
+function zoomProductImage() {
+    const img = document.querySelector('#detailProductImage img');
+    if (!img) return;
+    document.getElementById('zoomImg').src = img.src;
+    document.getElementById('imageZoomModal').style.display = 'flex';
+}
+
 function openProductDetail(productNo) {
     document.getElementById('detailProductNo').value = productNo;
     document.getElementById('detailProductImage').innerHTML = '';
     document.getElementById('updateProductImage').value = '';
+
+// 查詢品號圖片
+    fetch('/api/document/' + productNo)
+        .then(res => res.json())
+        .then(docs => {
+            const imgDoc = docs.find(d => d.docType === 'IMG' && d.processNo === 'product');
+            if (imgDoc) {
+                document.getElementById('detailProductImage').innerHTML = `
+                <img src="/api/document/image/${imgDoc.filePath}"
+                     style="width:120px;height:120px;object-fit:cover;margin-bottom:8px;border-radius:4px;"><br>
+            `;
+            }
+        });
 
     fetch('/api/process/byProduct/' + productNo)
         .then(res => res.json())
@@ -1023,6 +1112,8 @@ function openProductDetail(productNo) {
         });
 
     document.getElementById('productDetailModal').classList.add('show');
+
+
 }
 
 function closeProductDetail() {
@@ -1068,11 +1159,21 @@ function uploadDoc(productNo, processNo, docType, input) {
         }
     }).then(data => {
         alert(docType + ' 上傳成功！');
-        const cell = input.parentNode;
-        cell.innerHTML = `
-            <a href="${data.path}" target="_blank">查看</a>
-            <input type="file" accept="image/*" style="font-size:11px;display:block;margin-top:4px;" onchange="uploadDoc('${productNo}', '${processNo}', '${docType}', this)" />
-        `;
+        if (docType === 'IMG') {
+            document.getElementById('detailProductImage').innerHTML = `
+                <img src="/api/document/image/${data.fileName}"
+                     style="width:100px;height:100px;object-fit:cover;border-radius:6px;cursor:pointer;"
+                     onclick="zoomProductImage()" />
+            `;
+            document.getElementById('updateProductImage').value = '';
+        } else {
+            const cell = input.parentNode;
+            cell.innerHTML = `
+                <span style="color:green;font-size:11px;">✔ ${data.fileName ? data.fileName.split('/').pop() : ''}</span>
+                <br>
+                <input type="file" accept="image/*" style="font-size:11px;" onchange="uploadDoc('${productNo}', '${processNo}', '${docType}', this)" />
+            `;
+        }
     }).catch(err => {
         alert('上傳失敗：' + err.message);
         input.value = '';

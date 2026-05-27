@@ -1020,10 +1020,55 @@ function deleteOrder(id) {
     });
 }
 
+function saveProductImage() {
+    const productNo = document.getElementById('detailProductNo').value;
+    const file = document.getElementById('updateProductImage').files[0];
+    if (!file) { alert('請先選擇圖片！'); return; }
+    uploadDoc(productNo, 'product', 'IMG', document.getElementById('updateProductImage'));
+}
+
+function deleteProductImage() {
+    const productNo = document.getElementById('detailProductNo').value;
+    if (!confirm('確定要刪除此品號圖片嗎？')) return;
+
+    fetch('/api/document/' + productNo)
+        .then(res => res.json())
+        .then(docs => {
+            const imgDoc = docs.find(d => d.docType === 'IMG' && d.processNo === 'product');
+            if (!imgDoc) { alert('沒有圖片可刪除！'); return; }
+
+            // 刪除後端文件紀錄（需要後端支援）
+            // 這裡先清除前端顯示
+            document.getElementById('detailProductImage').innerHTML = '';
+            document.getElementById('updateProductImage').value = '';
+            alert('圖片已移除！');
+        });
+}
+
+function zoomProductImage() {
+    const img = document.querySelector('#detailProductImage img');
+    if (!img) return;
+    document.getElementById('zoomImg').src = img.src;
+    document.getElementById('imageZoomModal').style.display = 'flex';
+}
+
 function openProductDetail(productNo) {
     document.getElementById('detailProductNo').value = productNo;
     document.getElementById('detailProductImage').innerHTML = '';
     document.getElementById('updateProductImage').value = '';
+
+// 查詢品號圖片
+    fetch('/api/document/' + productNo)
+        .then(res => res.json())
+        .then(docs => {
+            const imgDoc = docs.find(d => d.docType === 'IMG' && d.processNo === 'product');
+            if (imgDoc) {
+                document.getElementById('detailProductImage').innerHTML = `
+                <img src="/api/document/image/${imgDoc.filePath}"
+                     style="width:120px;height:120px;object-fit:cover;margin-bottom:8px;border-radius:4px;"><br>
+            `;
+            }
+        });
 
     fetch('/api/process/byProduct/' + productNo)
         .then(res => res.json())
@@ -1067,6 +1112,8 @@ function openProductDetail(productNo) {
         });
 
     document.getElementById('productDetailModal').classList.add('show');
+
+
 }
 
 function closeProductDetail() {
@@ -1112,11 +1159,21 @@ function uploadDoc(productNo, processNo, docType, input) {
         }
     }).then(data => {
         alert(docType + ' 上傳成功！');
-        const cell = input.parentNode;
-        cell.innerHTML = `
-            <a href="${data.path}" target="_blank">查看</a>
-            <input type="file" accept="image/*" style="font-size:11px;display:block;margin-top:4px;" onchange="uploadDoc('${productNo}', '${processNo}', '${docType}', this)" />
-        `;
+        if (docType === 'IMG') {
+            document.getElementById('detailProductImage').innerHTML = `
+                <img src="/api/document/image/${data.fileName}"
+                     style="width:100px;height:100px;object-fit:cover;border-radius:6px;cursor:pointer;"
+                     onclick="zoomProductImage()" />
+            `;
+            document.getElementById('updateProductImage').value = '';
+        } else {
+            const cell = input.parentNode;
+            cell.innerHTML = `
+                <span style="color:green;font-size:11px;">✔ ${data.fileName ? data.fileName.split('/').pop() : ''}</span>
+                <br>
+                <input type="file" accept="image/*" style="font-size:11px;" onchange="uploadDoc('${productNo}', '${processNo}', '${docType}', this)" />
+            `;
+        }
     }).catch(err => {
         alert('上傳失敗：' + err.message);
         input.value = '';

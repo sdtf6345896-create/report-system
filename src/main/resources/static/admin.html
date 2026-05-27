@@ -180,7 +180,8 @@
             <div class="form-group"><label>製程代號</label><input type="text" id="editProcessCode" readonly /></div>
             <div class="form-group"><label>人時(起)</label><input type="text" id="editLaborStart" /></div>
             <div class="form-group"><label>人時(迄)</label><input type="text" id="editLaborEnd" /></div>
-            <div class="form-group"><label>機台數量</label>
+            <div class="form-group">
+                <label>機台數量</label>
                 <select id="editMachineQty" onchange="onEditMachineQtyChange()">
                     <option value="0">0</option><option value="1">1</option><option value="2">2</option>
                     <option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -205,7 +206,10 @@
 <!-- 新增品號 Modal -->
 <div class="modal" id="addProductModal">
     <div class="modal-box" style="width:600px;max-height:80vh;overflow-y:auto;">
-        <div class="modal-header"><h3>新增品號</h3><button class="modal-close-btn" onclick="closeAddProduct()">✕</button></div>
+        <div class="modal-header">
+            <h3>新增品號</h3>
+            <button class="modal-close-btn" onclick="closeAddProduct()">✕</button>
+        </div>
         <div class="modal-body">
             <div class="form-group"><label>品號</label><input type="text" id="addProductNo" placeholder="例如：66666-3666A" /></div>
             <div class="form-group"><label>產品圖片</label><input type="file" id="addProductImage" accept="image/*" /></div>
@@ -215,10 +219,12 @@
                 <button class="btn-save" onclick="addProcessRow()">＋ 新增工序</button>
             </div>
             <table style="width:100%;border-collapse:collapse;" id="addProcessTable">
-                <tr><td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序號</td>
+                <tr>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序號</td>
                     <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">製程代號</td>
                     <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序名稱</td>
-                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">操作</td></tr>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">操作</td>
+                </tr>
             </table>
         </div>
         <div class="modal-buttons">
@@ -231,9 +237,13 @@
 <!-- 新增製令 Modal -->
 <div class="modal" id="addOrderModal">
     <div class="modal-box" style="width:400px;">
-        <div class="modal-header"><h3>新增製令</h3><button class="modal-close-btn" onclick="closeAddOrder()">✕</button></div>
+        <div class="modal-header">
+            <h3>新增製令</h3>
+            <button class="modal-close-btn" onclick="closeAddOrder()">✕</button>
+        </div>
         <div class="modal-body">
-            <div class="form-group"><label>製令號</label>
+            <div class="form-group">
+                <label>製令號</label>
                 <input type="text" id="addOrderNo1" style="width:80px;" placeholder="5111" />
                 <span style="color:#64748b;">-</span>
                 <input type="text" id="addOrderNo2" style="flex:1;" placeholder="1511111" />
@@ -249,24 +259,60 @@
 
 <!-- 品號詳細 Modal -->
 <div class="modal" id="productDetailModal">
-    <div class="modal-box" style="width:620px;max-height:80vh;overflow-y:auto;">
-        <div class="modal-header"><h3>品號詳細</h3><button class="modal-close-btn" onclick="closeProductDetail()">✕</button></div>
+    <div class="modal-box" style="width:640px;max-height:80vh;overflow-y:auto;">
+        <div class="modal-header">
+            <h3>品號詳細</h3>
+            <button class="modal-close-btn" onclick="closeProductDetail()">✕</button>
+        </div>
         <div class="modal-body">
-            <div class="form-group"><label>品號</label><input type="text" id="detailProductNo" readonly /></div>
-            <div class="form-group"><label>產品圖片</label><div id="detailProductImage"></div><input type="file" id="updateProductImage" accept="image/*" /></div>
+
+            <!-- 品號 -->
+            <div class="form-group">
+                <label>品號</label>
+                <input type="text" id="detailProductNo" readonly />
+            </div>
+
+            <!-- 產品圖片 -->
+            <div class="form-group" style="align-items:flex-start;">
+                <label style="margin-top:8px;">產品圖片</label>
+                <div style="display:flex;gap:16px;align-items:flex-start;flex:1;">
+                    <!-- 左邊：圖片預覽（可點放大） -->
+                    <div id="detailProductImage"
+                         onclick="zoomProductImage()"
+                         style="cursor:pointer;min-width:100px;"></div>
+                    <!-- 右邊：選檔案 + 儲存按鈕 -->
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <input type="file" id="updateProductImage" accept="image/*" />
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn-save"
+                                    style="padding:4px 14px;font-size:12px;"
+                                    onclick="saveProductImage()">儲存圖片</button>
+                            <button class="btn-delete"
+                                    style="padding:4px 14px;font-size:12px;"
+                                    onclick="deleteProductImage()">刪除圖片</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <hr style="border-color:rgba(51,65,85,0.5);margin:12px 0;">
+
+            <!-- 工序列表 -->
             <strong style="color:#93c5fd;">工序列表</strong>
             <table style="width:100%;border-collapse:collapse;margin-top:10px;" id="detailProcessTable">
-                <tr><td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序號</td>
+                <tr>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序號</td>
                     <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">製程代號</td>
                     <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">工序名稱</td>
                     <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">SOP</td>
                     <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">SIP</td>
-                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">操作</td></tr>
+                    <td style="padding:6px;text-align:center;background:#1a3a5c;color:white;">操作</td>
+                </tr>
             </table>
             <div style="margin-top:10px;">
                 <button class="btn-save" onclick="openAddProcessToProduct()">＋ 新增工序</button>
             </div>
+
         </div>
         <div class="modal-buttons">
             <button class="btn-delete" onclick="deleteProduct()">刪除品號</button>
@@ -275,10 +321,21 @@
     </div>
 </div>
 
+<!-- 圖片放大 Modal -->
+<div id="imageZoomModal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:2000;justify-content:center;align-items:center;"
+     onclick="this.style.display='none'">
+    <img id="zoomImg" src="" style="max-width:90vw;max-height:90vh;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,0.8);" />
+    <span style="position:absolute;top:20px;right:28px;color:white;font-size:1.5rem;cursor:pointer;">✕</span>
+</div>
+
 <!-- 新增/編輯工序 Modal -->
 <div class="modal" id="processModal">
     <div class="modal-box" style="width:400px;">
-        <div class="modal-header"><h3 id="processModalTitle">新增工序</h3><button class="modal-close-btn" onclick="closeProcessModal()">✕</button></div>
+        <div class="modal-header">
+            <h3 id="processModalTitle">新增工序</h3>
+            <button class="modal-close-btn" onclick="closeProcessModal()">✕</button>
+        </div>
         <div class="modal-body">
             <div class="form-group"><label>工序號</label><input type="text" id="processModalNo" placeholder="例如：0010" /></div>
             <div class="form-group"><label>製程代號</label><input type="text" id="processModalCode" placeholder="例如：EH21" /></div>
@@ -294,7 +351,10 @@
 <!-- 新增員工 Modal -->
 <div class="modal" id="addEmployeeModal">
     <div class="modal-box" style="width:500px;max-height:80vh;overflow-y:auto;">
-        <div class="modal-header"><h3>新增員工</h3><button class="modal-close-btn" onclick="closeAddEmployee()">✕</button></div>
+        <div class="modal-header">
+            <h3>新增員工</h3>
+            <button class="modal-close-btn" onclick="closeAddEmployee()">✕</button>
+        </div>
         <div class="modal-body">
             <div class="form-group"><label>員工編號</label><input type="text" id="newEmpNo" readonly /></div>
             <div class="form-group"><label>姓名</label><input type="text" id="newEmpName" placeholder="請輸入姓名" /></div>
@@ -319,7 +379,10 @@
 <!-- 編輯員工 Modal -->
 <div class="modal" id="editEmployeeModal">
     <div class="modal-box" style="width:500px;max-height:80vh;overflow-y:auto;">
-        <div class="modal-header"><h3>編輯員工資料</h3><button class="modal-close-btn" onclick="closeEditEmployee()">✕</button></div>
+        <div class="modal-header">
+            <h3>編輯員工資料</h3>
+            <button class="modal-close-btn" onclick="closeEditEmployee()">✕</button>
+        </div>
         <div class="modal-body">
             <div class="form-group"><label>員工編號</label><input type="text" id="editEmpNo" readonly /></div>
             <div class="form-group"><label>姓名</label><input type="text" id="editEmpName" /></div>
@@ -344,7 +407,10 @@
 <!-- 新增/編輯機台 Modal -->
 <div class="modal" id="addMachineModal">
     <div class="modal-box" style="width:400px;">
-        <div class="modal-header"><h3 id="machineModalTitle">新增機台</h3><button class="modal-close-btn" onclick="closeAddMachine()">✕</button></div>
+        <div class="modal-header">
+            <h3 id="machineModalTitle">新增機台</h3>
+            <button class="modal-close-btn" onclick="closeAddMachine()">✕</button>
+        </div>
         <div class="modal-body">
             <div class="form-group"><label>機台編號</label><input type="text" id="machineCode" placeholder="例如：s1-1" /></div>
             <div class="form-group"><label>機台類型</label><input type="text" id="machineType" placeholder="例如：5噸機台" /></div>
