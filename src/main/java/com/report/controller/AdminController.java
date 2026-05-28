@@ -390,6 +390,8 @@ public class AdminController {
         emp.setEmergencyContact(emergencyContact);
         emp.setEmergencyPhone(emergencyPhone);
         emp.setEmergencyRelation(emergencyRelation);
+        String photo = (String) body.get("photo");
+        if (photo != null && !photo.isEmpty()) emp.setPhoto(photo);
         employeeRepo.save(emp);
         return ResponseEntity.ok().build();
     }

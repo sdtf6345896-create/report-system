@@ -1239,7 +1239,19 @@ function openAddEmployee() {
             });
         });
 
+    document.getElementById('newEmpName').value = ''
     document.getElementById('newEmpName').value = '';
+    document.getElementById('newEmpGender').value = '';
+    document.getElementById('newEmpPosition').value = '';
+    document.getElementById('newEmpDept').value = '';
+    document.getElementById('newEmpHireDate').value = '';
+    document.getElementById('newEmpPhone').value = '';
+    document.getElementById('newEmpIdNumber').value = '';
+    document.getElementById('newEmpEmergencyContact').value = '';
+    document.getElementById('newEmpEmergencyPhone').value = '';
+    document.getElementById('newEmpEmergencyRelation').value = '';
+    document.getElementById('newEmpPhoto').value = '';
+    document.getElementById('newEmpPhotoPreview').innerHTML = '';
     fetch('/api/admin/departments', { credentials: 'include' })
         .then(res => res.json())
         .then(depts => {
@@ -1277,6 +1289,7 @@ function saveNewEmployee() {
     if (!deptId) { alert('請選擇部門！'); return; }
 
     const saveEmployee = (photoPath) => {
+        console.log('存入的 photo:', photoPath);
         fetch('/api/admin/employee', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1318,8 +1331,14 @@ function saveNewEmployee() {
             credentials: 'include',
             body: formData
         }).then(res => res.json())
-            .then(data => saveEmployee(data.path))
-            .catch(() => saveEmployee(''));
+            .then(data => {
+                console.log('上傳回傳:', data);
+                saveEmployee(data.path);
+            })
+            .catch((err) => {
+                console.log('上傳失敗:', err);
+                saveEmployee('');
+            });
     } else {
         saveEmployee('');
     }
@@ -1532,4 +1551,17 @@ function saveEditEmployee() {
     } else {
         updateEmployee(window._editEmpCurrentPhoto || '');
     }
+}
+
+function previewPhoto(inputId, previewId) {
+    const file = document.getElementById(inputId).files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById(previewId).innerHTML = `
+            <img src="${e.target.result}"
+                 style="width:80px;height:80px;object-fit:cover;border-radius:4px;" />
+        `;
+    };
+    reader.readAsDataURL(file);
 }
