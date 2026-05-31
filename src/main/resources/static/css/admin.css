@@ -177,7 +177,10 @@ td {
     font-size: 12px;
 }
 
-tr:hover td { background: rgba(26,58,92,0.2); }
+tr:hover td {
+    background: rgba(26,58,92,0.2);
+    cursor: pointer;
+}
 
 /* 日期標題 */
 .date-header td {
@@ -415,4 +418,11 @@ tr td[colspan]:only-child:empty { display: none; }
 @media (max-width: 768px) {
     .container { padding: 1rem; }
     .filter-bar { flex-direction: column; align-items: stretch; }
+}
+
+.modal-body td a {
+    position: relative;
+    z-index: 10;
+    display: block;
+    pointer-events: all;
 }

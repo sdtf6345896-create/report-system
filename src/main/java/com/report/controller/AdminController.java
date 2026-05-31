@@ -19,6 +19,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -48,6 +50,9 @@ public class AdminController {
 
     @Autowired
     private com.report.repository.WorkOrderDocumentRepository workOrderDocumentRepo;
+
+    @Autowired
+    private com.report.repository.WorkReportRepository workReportRepo;
 
     @GetMapping("/reports")
     public List<Map<String, Object>> getReports(
@@ -248,6 +253,8 @@ public class AdminController {
         com.report.model.WorkOrder wo = new com.report.model.WorkOrder();
         wo.setOrderNo(orderNo);
         wo.setProductNo(productNo);
+        wo.setQuantity(body.get("quantity") != null ? ((Number) body.get("quantity")).intValue() : 0);
+        wo.setIsComplete(false);
         workOrderRepo.save(wo);
         return ResponseEntity.ok().build();
     }
@@ -322,6 +329,44 @@ public class AdminController {
         }
         workOrderRepo.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    // 製令完批
+    @PutMapping("/workorder/{id}/complete")
+    public ResponseEntity<?> completeWorkOrder(@PathVariable Long id) {
+        return workOrderRepo.findById(id).map(wo -> {
+            wo.setIsComplete(true);
+            workOrderRepo.save(wo);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // 查詢完批進度
+    @GetMapping("/workorder/{orderNo}/progress")
+    public ResponseEntity<?> getWorkOrderProgress(@PathVariable String orderNo) {
+        com.report.model.WorkOrder wo = workOrderRepo.findByOrderNo(orderNo).orElse(null);
+        if (wo == null) return ResponseEntity.notFound().build();
+
+        // 總工序數
+        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNoOrderByProcessNoAsc(wo.getProductNo());
+        int totalProcesses = processes.size();
+
+        // 已完批的不重複工序號
+        List<com.report.model.WorkReport> completedReports = workReportRepo.findCompletedByWorkOrder(orderNo);
+        java.util.Set<String> completedProcessNos = new java.util.HashSet<>();
+        completedReports.forEach(r -> {
+            if (r.getProcess() != null) completedProcessNos.add(r.getProcess());
+        });
+        int completedCount = completedProcessNos.size();
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("totalProcesses", totalProcesses);
+        result.put("completedProcesses", completedCount);
+        result.put("isComplete", wo.getIsComplete() != null && wo.getIsComplete());
+        result.put("quantity", wo.getQuantity());
+        result.put("orderNo", orderNo);
+        result.put("productNo", wo.getProductNo());
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/upload")
@@ -428,12 +473,22 @@ public class AdminController {
     }
 
     @GetMapping("/file/{fileName}")
-    public ResponseEntity<org.springframework.core.io.Resource> getFile(@PathVariable String fileName) throws java.io.IOException {
+    public ResponseEntity<Resource> getFile(@PathVariable String fileName) throws java.io.IOException {
         Path filePath = Paths.get("uploads/" + fileName);
-        org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(filePath.toUri());
+        Resource resource = new org.springframework.core.io.UrlResource(filePath.toUri());
         if (resource.exists()) {
+            // 自動判斷 Content-Type
+            String contentType = "application/octet-stream";
+            if (fileName.toLowerCase().endsWith(".pdf")) {
+                contentType = "application/pdf";
+            } else if (fileName.toLowerCase().endsWith(".jpg") || fileName.toLowerCase().endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            } else if (fileName.toLowerCase().endsWith(".png")) {
+                contentType = "image/png";
+            }
             return ResponseEntity.ok()
-                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                    .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                    .header("Content-Disposition", "inline; filename=\"" + fileName + "\"")
                     .body(resource);
         }
         return ResponseEntity.notFound().build();
@@ -458,5 +513,34 @@ public class AdminController {
             workMinutes -= (overlapEnd - overlapStart);
         }
         return Math.round(workMinutes / 60.0 * 100.0) / 100.0;
+    }
+
+    @GetMapping("/workorder/{orderNo}/detail")
+    public ResponseEntity<?> getWorkOrderDetail(@PathVariable String orderNo) {
+        com.report.model.WorkOrder wo = workOrderRepo.findByOrderNo(orderNo).orElse(null);
+        if (wo == null) return ResponseEntity.notFound().build();
+
+        List<com.report.model.ProcessMaster> processes = processMasterRepo.findByProductNoOrderByProcessNoAsc(wo.getProductNo());
+
+        List<Map<String, Object>> detail = new java.util.ArrayList<>();
+        for (com.report.model.ProcessMaster p : processes) {
+            // 查這張製令這個工序的所有報工
+            List<com.report.model.WorkReport> reports = workReportRepo.findAll().stream()
+                    .filter(r -> orderNo.equals(r.getWorkOrder()) && p.getProcessNo().equals(r.getProcess()))
+                    .collect(java.util.stream.Collectors.toList());
+
+            int totalQty = reports.stream()
+                    .mapToInt(r -> r.getCompletedQty() != null ? r.getCompletedQty() : 0)
+                    .sum();
+            boolean hasComplete = reports.stream().anyMatch(r -> r.getIsComplete() != null && r.getIsComplete());
+
+            Map<String, Object> item = new java.util.HashMap<>();
+            item.put("processNo", p.getProcessNo());
+            item.put("processName", p.getProcessName());
+            item.put("totalQty", totalQty);
+            item.put("isComplete", hasComplete);
+            detail.add(item);
+        }
+        return ResponseEntity.ok(detail);
     }
 }

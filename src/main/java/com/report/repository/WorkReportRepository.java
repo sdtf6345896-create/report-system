@@ -40,4 +40,7 @@ public interface WorkReportRepository extends JpaRepository<WorkReport, Long> {
 				"LEFT JOIN ProcessMaster pm ON wr.process = pm.processNo AND pm.productNo = wr.productNo " +
 				"WHERE wr.employeeNo IN :empNos AND wr.productionDate = :date")
 		List<Object[]> findByEmployeeNoInAndDateWithProcessCode(@Param("empNos") List<String> empNos, @Param("date") String date);
+
+		@Query("SELECT wr FROM WorkReport wr WHERE wr.workOrder = :workOrder AND wr.isComplete = true")
+		List<WorkReport> findCompletedByWorkOrder(@Param("workOrder") String workOrder);
 	}

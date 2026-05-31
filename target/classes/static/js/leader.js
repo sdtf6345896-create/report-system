@@ -65,7 +65,7 @@ function loadReports() {
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="14" style="text-align:center;">查無報工紀錄</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;">查無報工紀錄</td></tr>';
                 return;
             }
 
@@ -81,13 +81,13 @@ function loadReports() {
             sortedDates.forEach(date => {
                 if (tbody.children.length > 0) {
                     const spaceRow = document.createElement('tr');
-                    spaceRow.innerHTML = '<td colspan="14" style="height:8px;background:transparent;border:none;"></td>';
+                    spaceRow.innerHTML = '<td colspan="15" style="height:8px;background:transparent;border:none;"></td>';
                     tbody.appendChild(spaceRow);
                 }
 
                 const dateRow = document.createElement('tr');
                 dateRow.innerHTML = `
-                    <td colspan="14" class="date-header">
+                    <td colspan="15" class="date-header">
                         ${date.substring(0, 4)}/${date.substring(4, 6)}/${date.substring(6, 8)}
                     </td>
                 `;
@@ -109,6 +109,7 @@ function loadReports() {
                     <td>數量</td>
                     <td>報廢數量</td>
                     <td>備註</td>
+                    <td>完批</td>
                     <td>操作</td>
                 `;
                 tbody.appendChild(headerRow);
@@ -133,12 +134,13 @@ function loadReports() {
                             <td>${r.processCode || ''}</td>
                             <td>${r.laborTimeStart || ''}</td>
                             <td>${r.laborTimeEnd || ''}</td>
-                            <td>${r.machineList && r.machineList.length > 0 ? r.machineList.map(m => m.machineCode).join(', ') : r.machineCode || ''}</td>
-                            <td>${r.machineTimeStart || ''}</td>
-                            <td>${r.machineTimeEnd || ''}</td>
+                            <td>${r.machineList && r.machineList.length > 0 ? r.machineList.map(m => m.machineCode).join(', ') : (r.machineCode || '無')}</td>
+                            <td>${r.machineTimeStart || '0'}</td>
+                            <td>${r.machineTimeEnd || '0'}</td>
                             <td>${r.completedQty !== null ? r.completedQty : ''}</td>
                             <td>${r.scrapQty !== null ? r.scrapQty : ''}</td>
                             <td>${r.remarks || ''}</td>
+                            <td>${r.isComplete ? '✔' : ''}</td>
                             <td><button class="btn-edit" onclick="openEdit(${JSON.stringify(r).replace(/"/g, '&quot;')})">編輯</button></td>
                         `;
                         tbody.appendChild(row);

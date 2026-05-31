@@ -53,11 +53,11 @@ function loadReportList(date, empNo) {
                 if (r.machineList && r.machineList.length > 0) {
                     machineCodes = r.machineList.map(function(m) { return m.machineCode; }).join('\n');
                 } else {
-                    machineCodes = r.machineCode || '';
+                    machineCodes = r.machineCode || '無';
                 }
                 row.insertCell().innerText = machineCodes;
-                row.insertCell().innerText = r.machineTimeStart || '';
-                row.insertCell().innerText = r.machineTimeEnd || '';
+                row.insertCell().innerText = r.machineTimeStart || '0';
+                row.insertCell().innerText = r.machineTimeEnd || '0';
                 row.insertCell().innerText = r.completedQty !== null && r.completedQty !== undefined ? r.completedQty : '';
                 row.insertCell().innerText = r.scrapQty !== null && r.scrapQty !== undefined ? r.scrapQty : '';
                 row.insertCell().innerText = r.remarks || '';

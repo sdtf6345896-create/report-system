@@ -90,7 +90,7 @@
             </div>
             <div class="table-wrapper">
                 <table id="orderTable"><tbody id="orderBody">
-                <tr><td colspan="3" style="text-align:center;">載入中...</td></tr>
+                <tr><td colspan="5" style="text-align:center;">載入中...</td></tr>
                 </tbody></table>
             </div>
         </div>
@@ -141,6 +141,25 @@
         </div>
     </div>
 </div>
+
+<!-- 製令細項 Modal -->
+<div class="modal" id="orderDetailModal">
+    <div class="modal-box" style="width:500px;">
+        <div class="modal-header">
+            <h3 id="orderDetailTitle">製令細項</h3>
+            <button class="modal-close-btn" onclick="closeOrderDetail()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="table-wrapper">
+                <table><tbody id="orderDetailBody"></tbody></table>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeOrderDetail()">關閉</button>
+        </div>
+    </div>
+</div>
+
 
 <!-- 細項 Modal -->
 <div class="modal" id="detailModal">
@@ -249,6 +268,7 @@
                 <input type="text" id="addOrderNo2" style="flex:1;" placeholder="1511111" />
             </div>
             <div class="form-group"><label>品號</label><select id="addOrderProductNo"><option value="">--選擇品號--</option></select></div>
+            <div class="form-group"><label>製令數量</label><input type="number" id="addOrderQuantity" placeholder="例如：1000" /></div>
         </div>
         <div class="modal-buttons">
             <button class="btn-save" onclick="saveNewOrder()">儲存</button>

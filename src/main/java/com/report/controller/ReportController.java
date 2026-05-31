@@ -63,7 +63,9 @@ public class ReportController {
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         return svc.findById(id).map(existing -> {
             existing.setProductionDate((String) body.get("productionDate"));
-            existing.setEmployeeNo((String) body.get("employeeNo"));
+            if (body.get("employeeNo") != null) {
+                existing.setEmployeeNo((String) body.get("employeeNo"));
+            }
             existing.setWorkOrder((String) body.get("workOrder"));
             existing.setProductNo((String) body.get("productNo"));
             existing.setProcess((String) body.get("process"));

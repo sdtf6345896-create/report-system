@@ -13,4 +13,6 @@ public class WorkOrder {
     private Long id;
     private String orderNo;
     private String productNo;
+    private Integer quantity;
+    private Boolean isComplete;
 }
